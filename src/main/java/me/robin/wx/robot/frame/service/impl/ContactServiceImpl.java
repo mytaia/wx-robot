@@ -8,6 +8,7 @@ import me.robin.wx.robot.frame.service.ContactService;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.stereotype.Component;
 
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
@@ -15,6 +16,7 @@ import java.util.concurrent.ConcurrentHashMap;
 /**
  * Created by xuanlubin on 2017/4/19.
  */
+@Component
 public class ContactServiceImpl implements ContactService {
 
     private static final Logger logger = LoggerFactory.getLogger(ContactServiceImpl.class);

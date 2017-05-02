@@ -14,18 +14,21 @@ import okhttp3.Response;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
 
 import java.util.Map;
 
 /**
  * Created by xuanlubin on 2017/4/18.
  */
+@Component
 public class Server extends BaseServer {
 
     private static final Logger logger = LoggerFactory.getLogger(Server.class);
 
-    public Server(String appId, ContactService contactService) {
-        super(appId, contactService);
+    public Server( @Autowired ContactService contactService) {
+        super(WxConst.APP_ID, contactService);
     }
 
     /**

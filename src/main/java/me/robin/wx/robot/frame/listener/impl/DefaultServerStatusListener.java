@@ -1,21 +1,23 @@
 package me.robin.wx.robot.frame.listener.impl;
 
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import com.alibaba.fastjson.JSONArray;
-import me.robin.wx.robot.frame.WxApi;
+
 import me.robin.wx.robot.frame.MsgHandler;
+import me.robin.wx.robot.frame.WxApi;
 import me.robin.wx.robot.frame.listener.ServerStatusListener;
 import me.robin.wx.robot.frame.message.MsgChainHandler;
 import me.robin.wx.robot.frame.model.WxMsg;
 import me.robin.wx.robot.frame.util.WxUtil;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * Created by xuanlubin on 2017/4/20.
- */
+ */  
 public class DefaultServerStatusListener implements ServerStatusListener {
 
     private static final Logger logger = LoggerFactory.getLogger(DefaultServerStatusListener.class);
@@ -29,7 +31,7 @@ public class DefaultServerStatusListener implements ServerStatusListener {
 
     @Override
     public void onUUIDSuccess(String url) {
-        logger.debug("登录二维码:{}", url);
+        logger.info("登录二维码:{}", url);
     }
 
     @Override
@@ -42,12 +44,12 @@ public class DefaultServerStatusListener implements ServerStatusListener {
             message.setContent(WxUtil.revertXml(message.getContent()));
             String Content = message.getContent();
             int msgType = message.getMsgType();
-            logger.debug("收到新消息:{} {} {} {} {}", MsgId, FromUserName, ToUserName, Content, msgType);
+            logger.info("收到新消息:{} {} {} {} {}", MsgId, FromUserName, ToUserName, Content, msgType);
             MsgHandler msgHandler = this.handlerMap.get(msgType);
             if (null != msgHandler) {
                 msgHandler.handle(message, api);
             } else {
-                logger.debug("没有定义消息处理器 msgType:{}", msgType);
+                logger.warn("没有定义消息处理器 msgType:{}", msgType);
             }
         }
     }
