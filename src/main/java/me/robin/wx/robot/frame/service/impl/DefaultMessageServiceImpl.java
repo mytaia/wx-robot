@@ -10,9 +10,12 @@ import java.util.TimerTask;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.LinkedBlockingQueue;
 
+import org.springframework.stereotype.Component;
+
 /**
  * Created by xuanlubin on 2017/4/19.
  */
+@Component
 public class DefaultMessageServiceImpl implements MessageService {
 
     private Queue<WxMsg> historyMessageList = new LinkedBlockingQueue<>();
