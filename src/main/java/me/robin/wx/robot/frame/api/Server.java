@@ -1,36 +1,42 @@
-package me.robin.wx.robot.frame;
 
-import com.alibaba.fastjson.JSONObject;
-import com.alibaba.fastjson.JSONPath;
-import com.alibaba.fastjson.util.TypeUtils;
-import me.robin.wx.robot.frame.listener.MessageSendListener;
-import me.robin.wx.robot.frame.model.WxGroup;
-import me.robin.wx.robot.frame.model.WxUser;
-import me.robin.wx.robot.frame.service.ContactService;
-import me.robin.wx.robot.frame.util.WxUtil;
-import okhttp3.Call;
-import okhttp3.Request;
-import okhttp3.Response;
+package me.robin.wx.robot.frame.api;
+
+import java.util.Map;
+
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-import java.util.Map;
+import com.alibaba.fastjson.JSONObject;
+import com.alibaba.fastjson.JSONPath;
+import com.alibaba.fastjson.util.TypeUtils;
+
+import me.robin.wx.robot.frame.WxConst;
+import me.robin.wx.robot.frame.listener.MessageSendListener;
+import me.robin.wx.robot.frame.model.WxGroup;
+import me.robin.wx.robot.frame.model.WxUser;
+import me.robin.wx.robot.frame.util.WxUtil;
+import okhttp3.Call;
+import okhttp3.Request;
+import okhttp3.Response;
 
 /**
  * Created by xuanlubin on 2017/4/18.
  */
 @Component
 public class Server extends BaseServer {
-
+    
+    @Autowired
+    private MessageSendListener messageSendListener;
+    
     private static final Logger logger = LoggerFactory.getLogger(Server.class);
-
-    public Server( @Autowired ContactService contactService) {
-        super(WxConst.APP_ID, contactService);
+    
+    public Server() {
+        super(WxConst.APP_ID);
     }
-
+    
     /**
      * 发送文本消息
      *
@@ -38,35 +44,34 @@ public class Server extends BaseServer {
      * @param message
      * @param messageSendListener
      */
-    public void sendTextMessage(String user, String message, MessageSendListener messageSendListener) {
-        sendTextMessage(user, message, 0, messageSendListener);
+    @Override
+    public void sendTextMessage(String user, String message) {
+        sendTextMessage(user, message, 0);
     }
-
-
-    public void sendTextMessage(String user, String message, int type, MessageSendListener messageSendListener) {
-
+    
+    @Override
+    public void sendTextMessage(String user, String message, int type) {
+        
         if (!checkLogin()) {
             logger.info("还未完成登录,不能发送消息");
-            messageSendListener.serverNotReady(user, message);
             return;
         }
-
+        
         WxUser wxUser = contactService.queryUser(user);
         if (null == wxUser) {
             logger.info("找不到目标用户,不能发送消息");
-            messageSendListener.userNotFound(user, message);
             return;
         }
-
+        
         if (StringUtils.equals(wxUser.getUserName(), this.user.getUserName())) {
             logger.warn("WEB微信不能给自己发消息");
             return;
         }
-
+        
         if (type == 1) {
-
+            
         }
-
+        
         Request.Builder builder = initRequestBuilder("/cgi-bin/mmwebwx-bin/webwxsendmsg");
         Map<String, Object> requestBody = baseRequest();
         String localId = System.currentTimeMillis() + WxUtil.random(4);
@@ -78,12 +83,13 @@ public class Server extends BaseServer {
         msg.put("ToUserName", wxUser.getUserName());
         msg.put("LocalID", localId);
         msg.put("ClientMsgId", localId);
-
+        
         requestBody.put("Msg", msg);
-
+        
         WxUtil.jsonRequest(requestBody, builder::post);
-
-        client.newCall(builder.build()).enqueue(new BaseJsonCallback() {
+        
+        webClient.asynCall(builder.build(), new BaseJsonCallback() {
+            
             @Override
             void process(Call call, Response response, JSONObject syncRsp) {
                 Integer ret = TypeUtils.castToInt(JSONPath.eval(syncRsp, "BaseResponse.Ret"));
@@ -99,7 +105,7 @@ public class Server extends BaseServer {
             }
         });
     }
-
+    
     /**
      * 修改群聊名称
      *
@@ -112,13 +118,14 @@ public class Server extends BaseServer {
         } else {
             WxUser wxUser = contactService.queryUser(chatRoom);
             if (wxUser instanceof WxGroup) {
-                //https://wx2.qq.com/cgi-bin/mmwebwx-bin/webwxupdatechatroom?fun=modtopic&lang=zh_CN
+                // https://wx2.qq.com/cgi-bin/mmwebwx-bin/webwxupdatechatroom?fun=modtopic&lang=zh_CN
                 Request.Builder builder = initRequestBuilder("/cgi-bin/mmwebwx-bin/webwxupdatechatroom", "fun", "modtopic", "lang", "zh_CN");
                 Map<String, Object> requestBody = baseRequest();
                 requestBody.put("NewTopic", name);
                 requestBody.put("ChatRoomName", wxUser.getUserName());
                 WxUtil.jsonRequest(requestBody, builder::post);
-                client.newCall(builder.build()).enqueue(new BaseJsonCallback() {
+                webClient.asynCall(builder.build(), new BaseJsonCallback() {
+                    
                     @Override
                     void process(Call call, Response response, JSONObject content) {
                         Integer ret = TypeUtils.castToInt(JSONPath.eval(content, "BaseResponse.Ret"));

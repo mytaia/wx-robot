@@ -1,3 +1,4 @@
+
 package me.robin.wx.robot;
 
 import org.slf4j.Logger;
@@ -7,78 +8,74 @@ import org.springframework.boot.SpringBootConfiguration;
 import org.springframework.context.annotation.Bean;
 import org.springframework.stereotype.Component;
 
-import me.robin.wx.robot.frame.Server;
-import me.robin.wx.robot.frame.WxConst;
+import me.robin.wx.robot.frame.api.Server;
 import me.robin.wx.robot.frame.listener.MessageSendListener;
-import me.robin.wx.robot.frame.listener.ServerStatusListener;
-import me.robin.wx.robot.frame.listener.impl.DefaultServerStatusListener;
-import me.robin.wx.robot.frame.message.AppMsgHandler;
-import me.robin.wx.robot.frame.message.MessageSaveHandler;
-import me.robin.wx.robot.frame.message.RevokeMsgHandler;
-import me.robin.wx.robot.frame.service.ContactService;
-import me.robin.wx.robot.frame.service.MessageService;
+import me.robin.wx.robot.frame.message.TextMessageHandler;
 
+/**
+ * FIXME 类注释信息(此标记自动生成,注释填写完成后请删除)
+ * 
+ * <pre>
+ * [
+ * 调用关系:
+ * 实现接口及父类:
+ * 子类:
+ * 内部类列表:
+ * ]
+ * </pre>
+ * 
+ * @author 作者
+ * @since 1.0
+ * @version 2017年5月3日 作者
+ */
 @Component
 @SpringBootConfiguration
 public class Beans {
-
-	
-	private static final Logger logger = LoggerFactory.getLogger(Beans.class); 
-	@Autowired
-	private ContactService contactService;
-	@Autowired
-	private Server server; 
-
-	@Autowired
-	private MessageService messageService;
-
-	@Autowired
-	private MessageSendListener messageSendListener;
- 
-
-	@Bean
-	public MessageSendListener messageSendListener() {
-
-		MessageSendListener serverStatusListener = new MessageSendListener() {
-			@Override
-			public void userNotFound(String user, String message) {
-
-			}
-
-			@Override
-			public void serverNotReady(String user, String message) {
-				server.waitLoginDone();
-				server.sendTextMessage(user, message, this);
-			}
-
-			@Override
-			public void success(String user, String message, String messageId, String localId) {
-				logger.debug("发送完成:{} {}", messageId, localId);
-			}
-
-			@Override
-			public void failure(String user, String message) {
-
-			}
-		};
-
-		return serverStatusListener;
-	}
-
-	@Bean
-	public ServerStatusListener serverStatusListener() {
-		ServerStatusListener serverStatusListener = new DefaultServerStatusListener();
-		RevokeMsgHandler revokeMsgHandler = new RevokeMsgHandler(messageSendListener, messageService, contactService);
-		revokeMsgHandler.enable("demo");
-		serverStatusListener.registerMessageHandler(WxConst.MessageType.REVOKE_MSG, revokeMsgHandler);
-		serverStatusListener.registerMessageHandler(WxConst.MessageType.APP_MSG, new AppMsgHandler());
-
-		MessageSaveHandler messageSaveHandler = new MessageSaveHandler(messageService);
-		serverStatusListener.registerMessageHandler(WxConst.MessageType.TEXT, messageSaveHandler);
-		serverStatusListener.registerMessageHandler(WxConst.MessageType.IMG, messageSaveHandler);
-		serverStatusListener.registerMessageHandler(WxConst.MessageType.VIDEO, messageSaveHandler);
-		serverStatusListener.registerMessageHandler(WxConst.MessageType.VOICE, messageSaveHandler);
-
-		return serverStatusListener;
-	}
+    
+    /** FIXME */
+    private static final Logger logger = LoggerFactory.getLogger(Beans.class);
+    
+    /** FIXME */
+    @Autowired
+    private Server server;
+    
+    /** FIXME */
+    @Autowired
+    private TextMessageHandler textMessageHandler;
+    
+    /**
+     * FIXME 方法注释信息(此标记由Eclipse自动生成,请填写注释信息删除此标记)
+     *
+     * @return x
+     */
+    @Bean
+    public MessageSendListener messageSendListener() {
+        
+        MessageSendListener serverStatusListener = new MessageSendListener() {
+            
+            @Override
+            public void userNotFound(String user, String message) {
+                
+            }
+            
+            @Override
+            public void serverNotReady(String user, String message) {
+                server.waitLoginDone();
+                server.sendTextMessage(user, message);
+            }
+            
+            @Override
+            public void success(String user, String message, String messageId, String localId) {
+                logger.debug("发送完成:{} {}", messageId, localId);
+            }
+            
+            @Override
+            public void failure(String user, String message) {
+                
+            }
+        };
+        
+        return serverStatusListener;
+    }
+    
 }

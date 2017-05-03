@@ -1,73 +1,79 @@
-package me.robin.wx.robot.frame;
 
-import com.alibaba.fastjson.JSON;
-import com.alibaba.fastjson.JSONArray;
-import com.alibaba.fastjson.JSONObject;
-import com.alibaba.fastjson.JSONPath;
-import com.alibaba.fastjson.util.TypeUtils;
-import me.robin.wx.robot.frame.cookie.CookieInterceptor;
-import me.robin.wx.robot.frame.cookie.MemoryCookieStore;
-import me.robin.wx.robot.frame.listener.ServerStatusListener;
-import me.robin.wx.robot.frame.model.LoginUser;
-import me.robin.wx.robot.frame.service.ContactService;
-import me.robin.wx.robot.frame.util.ResponseReadUtils;
-import me.robin.wx.robot.frame.util.WxUtil;
-import okhttp3.*;
+package me.robin.wx.robot.frame.api;
+
+import java.io.File;
+import java.io.IOException;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+import java.util.Timer;
+import java.util.TimerTask;
+
+import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 
-import java.io.IOException;
-import java.net.CookieStore;
-import java.util.*;
-import java.util.concurrent.TimeUnit;
+import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.JSONArray;
+import com.alibaba.fastjson.JSONObject;
+import com.alibaba.fastjson.JSONPath;
+import com.alibaba.fastjson.util.TypeUtils;
+
+import me.robin.wx.robot.frame.DelayTask;
+import me.robin.wx.robot.frame.WxConst;
+import me.robin.wx.robot.frame.listener.ServerStatusListener;
+import me.robin.wx.robot.frame.model.LoginUser;
+import me.robin.wx.robot.frame.service.ContactService;
+import me.robin.wx.robot.frame.util.ResponseReadUtils;
+import me.robin.wx.robot.frame.util.WxUtil;
+import okhttp3.Call;
+import okhttp3.Callback;
+import okhttp3.Cookie;
+import okhttp3.HttpUrl;
+import okhttp3.Request;
+import okhttp3.Response;
 
 /**
  * Created by xuanlubin on 2017/4/18.
  */
 public abstract class BaseServer implements Runnable, WxApi {
-
+    
     private static final Logger logger = LoggerFactory.getLogger(BaseServer.class);
-
+    
     private static final Timer delayTaskScheduler = new Timer("DelayTaskScheduler");
-
+    
     private String appId;
-
+    
     final LoginUser user = new LoginUser();
-
-    OkHttpClient client;
-
+    
     @Autowired
     ServerStatusListener statusListener;
-
-    ContactService contactService;
-
-    private CookieStore cookieStore;
-
+    
+    @Autowired
+    protected WebClient webClient;
+    
+    @Autowired
+    protected ContactService contactService;
+    
     private volatile boolean login = false;
-
-    public BaseServer(String appId, ContactService contactService) {
+    
+    public BaseServer(String appId) {
         this.appId = appId;
-        this.cookieStore = new MemoryCookieStore();
-        this.contactService = contactService;
-        this.client = new OkHttpClient.Builder()
-                .readTimeout(60, TimeUnit.SECONDS)
-                .connectTimeout(60, TimeUnit.SECONDS)
-                .addInterceptor(new CookieInterceptor(this.cookieStore))
-                .build();
     }
-
+    
     @Override
     public void run() {
         this.queryNewUUID();
     }
-
+    
     boolean checkLogin() {
         return login;
     }
-
+    
     public void waitLoginDone() {
         if (checkLogin()) {
             return;
@@ -80,23 +86,31 @@ public abstract class BaseServer implements Runnable, WxApi {
             }
         }
     }
-
+    
     @Override
     public LoginUser loginUser() {
         return login ? user : null;
     }
-
+    
     /**
      * 初始化
      */
     private void init() {
         Request.Builder builder = initRequestBuilder(WxConst.INIT_URL, "r", WxUtil.random(10), "lang", "zh_CN", "pass_ticket", user.getPassTicket());
         WxUtil.jsonRequest(baseRequest(), builder::post);
-        client.newCall(builder.build()).enqueue(new BaseJsonCallback() {
+        webClient.asynCall(builder.build(), new BaseJsonCallback() {
+            
             @Override
             public void process(Call call, Response response, JSONObject responseJson) {
                 Integer ret = TypeUtils.castToInt(JSONPath.eval(responseJson, "BaseResponse.Ret"));
                 if (null != ret && 0 == ret) {
+                    
+                    try {
+                        FileUtils.writeStringToFile(new File("e:\\a0.js"), responseJson.toJSONString(), "gbk");
+                    } catch (IOException e) {
+                        // TODO Auto-generated catch block
+                        e.printStackTrace();
+                    }
                     JSONObject user = responseJson.getJSONObject("User");
                     BaseServer.this.user.setUserName(user.getString("UserName"));
                     BaseServer.this.user.setNickName(user.getString("NickName"));
@@ -111,19 +125,26 @@ public abstract class BaseServer implements Runnable, WxApi {
             }
         });
     }
-
-
+    
     /**
      * 获取通讯录
      */
     private void getContact() {
-        Request request = initRequestBuilder("/cgi-bin/mmwebwx-bin/webwxgetcontact", "lang", "zh_CN", "r", System.currentTimeMillis(), "seq", "0", "skey", user.getSkey()).build();
-        client.newCall(request).enqueue(new BaseJsonCallback() {
+        Request request = initRequestBuilder("/cgi-bin/mmwebwx-bin/webwxgetcontact", "lang", "zh_CN", "r", System.currentTimeMillis(), "seq", "0",
+            "skey", user.getSkey()).build();
+        webClient.asynCall(request, new BaseJsonCallback() {
+            
             @Override
             void process(Call call, Response response, JSONObject content) {
                 logger.info("获取到联系人列表");
                 syncCheck();
                 batchGetContact();
+                try {
+                    FileUtils.writeStringToFile(new File("e:\\a.js"), content.toJSONString(), "gbk");
+                } catch (IOException e) {
+                    // TODO Auto-generated catch block
+                    e.printStackTrace();
+                }
                 contactService.updateContact(content.getJSONArray("MemberList"));
                 login = true;
                 synchronized (BaseServer.this.user) {
@@ -132,23 +153,24 @@ public abstract class BaseServer implements Runnable, WxApi {
             }
         });
     }
-
+    
     /**
      * 获取通讯录
      */
     private void batchGetContact() {
-
+        
     }
-
-
+    
     /**
      * long poll sync
      */
     private void syncCheck() {
-        //https://webpush.wx2.qq.com/cgi-bin/mmwebwx-bin/synccheck?r=1492576604964&skey=%40crypt_cfbf95a5_ddaa708f9a9ac2e2d7a95a0a433b3c67&sid=GQ7GDgvoL6Y8FrQY&uin=1376796829&deviceid=e644133084693151&synckey=1_657703788%7C2_657703818%7C3_657703594%7C1000_1492563241&_=1492576604148
+        // https://webpush.wx2.qq.com/cgi-bin/mmwebwx-bin/synccheck?r=1492576604964&skey=%40crypt_cfbf95a5_ddaa708f9a9ac2e2d7a95a0a433b3c67&sid=GQ7GDgvoL6Y8FrQY&uin=1376796829&deviceid=e644133084693151&synckey=1_657703788%7C2_657703818%7C3_657703594%7C1000_1492563241&_=1492576604148
         String url = "https://webpush.{host}/cgi-bin/mmwebwx-bin/synccheck";
-        Request request = initRequestBuilder(url, "r", System.currentTimeMillis(), "skey", user.getSkey(), "sid", user.getSid(), "uin", user.getUin(), "deviceid", WxUtil.randomDeviceId(), "synckey", syncKey(), "_", System.currentTimeMillis()).build();
-        client.newCall(request).enqueue(new BaseCallback() {
+        Request request = initRequestBuilder(url, "r", System.currentTimeMillis(), "skey", user.getSkey(), "sid", user.getSid(), "uin", user.getUin(),
+            "deviceid", WxUtil.randomDeviceId(), "synckey", syncKey(), "_", System.currentTimeMillis()).build();
+        webClient.asynCall(request, new BaseCallback() {
+            
             @Override
             void process(Call call, Response response, String content) {
                 String rsp = StringUtils.substringAfter(content, "window.synccheck=");
@@ -179,18 +201,19 @@ public abstract class BaseServer implements Runnable, WxApi {
             }
         });
     }
-
+    
     /**
      * sync messages
      */
     private void sync() {
-        //https://wx2.qq.com/cgi-bin/mmwebwx-bin/webwxsync?sid=GQ7GDgvoL6Y8FrQY&skey=@crypt_cfbf95a5_ddaa708f9a9ac2e2d7a95a0a433b3c67
+        // https://wx2.qq.com/cgi-bin/mmwebwx-bin/webwxsync?sid=GQ7GDgvoL6Y8FrQY&skey=@crypt_cfbf95a5_ddaa708f9a9ac2e2d7a95a0a433b3c67
         Request.Builder builder = initRequestBuilder("/cgi-bin/mmwebwx-bin/webwxsync", "sid", user.getSid(), "skey", user.getSkey());
         Map<String, Object> requestBody = baseRequest();
         requestBody.put("SyncKey", user.getSyncKey());
         requestBody.put("rr", WxUtil.random(10));
         WxUtil.jsonRequest(requestBody, builder::post);
-        client.newCall(builder.build()).enqueue(new BaseJsonCallback() {
+        webClient.asynCall(builder.build(), new BaseJsonCallback() {
+            
             @Override
             void process(Call call, Response response, JSONObject syncRsp) {
                 Integer ret = TypeUtils.castToInt(JSONPath.eval(syncRsp, "BaseResponse.Ret"));
@@ -210,15 +233,15 @@ public abstract class BaseServer implements Runnable, WxApi {
                         user.setSkey(skey);
                     }
                     if (null != statusListener) {
-                        statusListener.onAddMsgList(syncRsp.getJSONArray("AddMsgList"), (Server) BaseServer.this);
-                        statusListener.onDelContactList(syncRsp.getJSONArray("ModContactList"), (Server) BaseServer.this);
-                        statusListener.onModChatRoomMemberList(syncRsp.getJSONArray("DelContactList"), (Server) BaseServer.this);
-                        statusListener.onModContactList(syncRsp.getJSONArray("ModChatRoomMemberList"), (Server) BaseServer.this);
+                        statusListener.onAddMsgList(syncRsp.getJSONArray("AddMsgList"), BaseServer.this);
+                        statusListener.onDelContactList(syncRsp.getJSONArray("ModContactList"), BaseServer.this);
+                        statusListener.onModChatRoomMemberList(syncRsp.getJSONArray("DelContactList"), BaseServer.this);
+                        statusListener.onModContactList(syncRsp.getJSONArray("ModChatRoomMemberList"), BaseServer.this);
                     }
                 } else {
                     logger.warn("同步异常:{}", syncRsp.toJSONString());
                 }
-
+                
                 if (syncNow) {
                     syncCheck();
                 } else {
@@ -227,7 +250,7 @@ public abstract class BaseServer implements Runnable, WxApi {
             }
         });
     }
-
+    
     /**
      * 登录web微信
      */
@@ -236,7 +259,8 @@ public abstract class BaseServer implements Runnable, WxApi {
             loginPageUrl = loginPageUrl + "&fun=new&version=v2";
         }
         Request request = initRequestBuilder(loginPageUrl).build();
-        client.newCall(request).enqueue(new BaseCallback() {
+        webClient.asynCall(request, new BaseCallback() {
+            
             @Override
             public void process(Call call, Response response, String content) {
                 String ret = WxUtil.getValueFromXml(content, "ret");
@@ -260,7 +284,7 @@ public abstract class BaseServer implements Runnable, WxApi {
             }
         });
     }
-
+    
     /**
      * send status notify
      */
@@ -272,20 +296,22 @@ public abstract class BaseServer implements Runnable, WxApi {
         requestBody.put("ToUserName", user.getUserName());
         requestBody.put("ClientMsgId", System.currentTimeMillis());
         WxUtil.jsonRequest(requestBody, builder::post);
-        client.newCall(builder.build()).enqueue(new BaseCallback() {
+        webClient.asynCall(builder.build(), new BaseCallback() {
+            
             @Override
             public void process(Call call, Response response, String content) {
                 logger.info("WX登录StatusNotify send success");
             }
         });
     }
-
+    
     /**
      * 获取二维码 以及 UUID
      */
     private void queryNewUUID() {
         Request request = initRequestBuilder(WxConst.QR_CODE_API, "appid", appId).build();
-        client.newCall(request).enqueue(new BaseCallback() {
+        webClient.asynCall(request, new BaseCallback() {
+            
             @Override
             public void process(Call call, Response response, String content) {
                 int idx = content.indexOf("window.QRLogin.uuid");
@@ -302,13 +328,15 @@ public abstract class BaseServer implements Runnable, WxApi {
             }
         });
     }
-
+    
     /**
      * 等待用户客户端点击登录
      */
     private void waitForLogin() {
-        Request request = initRequestBuilder(WxConst.LOGIN_CHECK_API, "loginicon", "true", "uuid", this.user.getUuid(), "tip", "1", "r", WxUtil.random(10), "_", System.currentTimeMillis()).build();
-        client.newCall(request).enqueue(new BaseCallback() {
+        Request request = initRequestBuilder(WxConst.LOGIN_CHECK_API, "loginicon", "true", "uuid", this.user.getUuid(), "tip", "1", "r",
+            WxUtil.random(10), "_", System.currentTimeMillis()).build();
+        webClient.asynCall(request, new BaseCallback() {
+            
             @Override
             void process(Call call, Response response, String content) {
                 String status = StringUtils.substringBetween(content, "window.code=", ";");
@@ -338,7 +366,7 @@ public abstract class BaseServer implements Runnable, WxApi {
             }
         });
     }
-
+    
     /**
      * 重新执行请求
      *
@@ -347,10 +375,9 @@ public abstract class BaseServer implements Runnable, WxApi {
      */
     void reCall(Call call, Callback callback) {
         Request request = call.request().newBuilder().build();
-        client.newCall(request).enqueue(callback);
+        webClient.asynCall(request, callback);
     }
-
-
+    
     /**
      * 初始化请求头
      *
@@ -375,7 +402,7 @@ public abstract class BaseServer implements Runnable, WxApi {
                 }
             }
         }
-
+        
         Request.Builder builder = new Request.Builder().url(urlBuilder.build());
         builder.header("User-Agent", "Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/57.0.2987.98 Safari/537.36");
         builder.header("Referer", "https://" + user.getLoginHost() + "/");
@@ -384,7 +411,7 @@ public abstract class BaseServer implements Runnable, WxApi {
         builder.header("Accept-Language", "zh-CN,zh;q=0.8,en;q=0.6,en-US;q=0.4,zh-TW;q=0.2,ja;q=0.2");
         return builder;
     }
-
+    
     /**
      * 请求基本信息
      *
@@ -400,7 +427,7 @@ public abstract class BaseServer implements Runnable, WxApi {
         wrap.put("BaseRequest", baseRequest);
         return wrap;
     }
-
+    
     /**
      * 组装SyncKey参数
      *
@@ -418,34 +445,35 @@ public abstract class BaseServer implements Runnable, WxApi {
         }
         return sb.toString();
     }
-
+    
     /**
      * 延时任务
      *
-     * @param delayTask   任务
+     * @param delayTask 任务
      * @param delaySecond 延时时间
      */
     void delayTask(DelayTask delayTask, float delaySecond) {
         delayTaskScheduler.schedule(new TimerTask() {
+            
             @Override
             public void run() {
                 delayTask.execute();
             }
         }, (long) (delaySecond * 1000));
     }
-
+    
     public void setStatusListener(ServerStatusListener statusListener) {
         this.statusListener = statusListener;
     }
-
+    
     public abstract class BaseCallback implements Callback {
-
+        
         @Override
         public void onFailure(Call call, IOException e) {
             logger.error("{}", call.request().url().toString(), e);
             reCall(call, this);
         }
-
+        
         @Override
         public void onResponse(Call call, Response response) throws IOException {
             try {
@@ -455,18 +483,18 @@ public abstract class BaseServer implements Runnable, WxApi {
                 IOUtils.closeQuietly(response);
             }
         }
-
+        
         abstract void process(Call call, Response response, String content);
     }
-
+    
     public abstract class BaseJsonCallback implements Callback {
-
+        
         @Override
         public void onFailure(Call call, IOException e) {
             logger.error("{}", call.request().url().toString(), e);
             reCall(call, this);
         }
-
+        
         @Override
         public void onResponse(Call call, Response response) throws IOException {
             try {
@@ -476,7 +504,7 @@ public abstract class BaseServer implements Runnable, WxApi {
                 IOUtils.closeQuietly(response);
             }
         }
-
+        
         abstract void process(Call call, Response response, JSONObject content);
     }
 }
