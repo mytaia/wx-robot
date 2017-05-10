@@ -16,6 +16,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 
+import com.alibaba.fastjson.JSONObject;
+
 import okhttp3.Callback;
 import okhttp3.Headers;
 import okhttp3.Interceptor;
@@ -67,6 +69,50 @@ public class WebClient {
      */
     public void asynCall(Request request, Callback callback) {
         client.newCall(request).enqueue(callback);
+    }
+    
+    /**
+     * FIXME 方法注释信息(此标记由Eclipse自动生成,请填写注释信息删除此标记)
+     *
+     * @param request x
+     * @param callback x
+     * @return x
+     * @throws IOException x
+     */
+    public Response execute(Request request) throws IOException {
+        return client.newCall(request).execute();
+    }
+    
+    /**
+     * FIXME 方法注释信息(此标记由Eclipse自动生成,请填写注释信息删除此标记)
+     *
+     * @param request x
+     * @param callback x
+     * @return x
+     * @throws IOException x
+     */
+    public String executeString(Request request) throws IOException {
+        Response response = execute(request);
+        if (response.isSuccessful()) {
+            return response.body().string();
+        }
+        return null;
+    }
+    
+    /**
+     * FIXME 方法注释信息(此标记由Eclipse自动生成,请填写注释信息删除此标记)
+     *
+     * @param request x
+     * @param callback x
+     * @return x
+     * @throws IOException x
+     */
+    public JSONObject executeJson(Request request) throws IOException {
+        String content = executeString(request);
+        if (StringUtils.isNotBlank(content)) {
+            return JSONObject.parseObject(content);
+        }
+        return null;
     }
     
     /**
