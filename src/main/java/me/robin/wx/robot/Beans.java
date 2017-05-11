@@ -11,6 +11,9 @@ import org.springframework.stereotype.Component;
 import me.robin.wx.robot.frame.api.Server;
 import me.robin.wx.robot.frame.listener.MessageSendListener;
 import me.robin.wx.robot.frame.message.TextMessageHandler;
+import me.robin.wx.robot.lot.domain.k10.K10BetResolver;
+import me.robin.wx.robot.lot.domain.k3.K3BetResolver;
+import me.robin.wx.robot.lot.resolver.ComboBetResolver;
 
 /**
  * FIXME 类注释信息(此标记自动生成,注释填写完成后请删除)
@@ -78,4 +81,16 @@ public class Beans {
         return serverStatusListener;
     }
     
+    /**
+     * FIXME 方法注释信息(此标记由Eclipse自动生成,请填写注释信息删除此标记)
+     *
+     * @return x
+     */
+    @Bean
+    public ComboBetResolver messageBetResolver() {
+        ComboBetResolver messageBetResolver = new ComboBetResolver();
+        messageBetResolver.addResolver(new K10BetResolver());
+        messageBetResolver.addResolver(new K3BetResolver());
+        return messageBetResolver;
+    }
 }

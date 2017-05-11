@@ -21,6 +21,9 @@ public interface WxConst {
     // https://wx.qq.com/cgi-bin/mmwebwx-bin/webwxstatusnotify?lang=zh_CN&pass_ticket=Me48r4e05o5ztyB3CG3wGR9ZQgfDTISx1VnOceJnuvWmUz5IdisOjtPITI7hji04
     String STATUS_NOTIFY = "/cgi-bin/mmwebwx-bin/webwxstatusnotify";
     
+    /** 机器人发出的消息前的前缀 */
+    public static final String ADMIN_MESSAGE_PREX = "@_@";
+    
     /** 特殊用户 须过滤 */
     public static final List<String> FILTER_USERS = Arrays.asList("newsapp", "fmessage", "filehelper", "weibo", "qqmail", "fmessage", "tmessage",
         "qmessage", "qqsync", "floatbottle", "lbsapp", "shakeapp", "medianote", "qqfriend", "readerapp", "blogapp", "facebookapp", "masssendapp",

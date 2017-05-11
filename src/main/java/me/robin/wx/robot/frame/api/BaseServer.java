@@ -1,7 +1,6 @@
 
 package me.robin.wx.robot.frame.api;
 
-import java.io.File;
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.List;
@@ -10,18 +9,20 @@ import java.util.Optional;
 import java.util.Timer;
 import java.util.TimerTask;
 
-import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.util.CollectionUtils;
 
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.alibaba.fastjson.JSONPath;
 import com.alibaba.fastjson.util.TypeUtils;
+import com.google.common.collect.ImmutableMap;
+import com.google.common.collect.Lists;
 
 import me.robin.wx.robot.frame.DelayTask;
 import me.robin.wx.robot.frame.WxConst;
@@ -104,13 +105,6 @@ public abstract class BaseServer implements Runnable, WxApi {
             public void process(Call call, Response response, JSONObject responseJson) {
                 Integer ret = TypeUtils.castToInt(JSONPath.eval(responseJson, "BaseResponse.Ret"));
                 if (null != ret && 0 == ret) {
-                    
-                    try {
-                        FileUtils.writeStringToFile(new File("e:\\a0.js"), responseJson.toJSONString(), "gbk");
-                    } catch (IOException e) {
-                        // TODO Auto-generated catch block
-                        e.printStackTrace();
-                    }
                     JSONObject user = responseJson.getJSONObject("User");
                     BaseServer.this.user.setUserName(user.getString("UserName"));
                     BaseServer.this.user.setNickName(user.getString("NickName"));
@@ -138,13 +132,7 @@ public abstract class BaseServer implements Runnable, WxApi {
             void process(Call call, Response response, JSONObject content) {
                 logger.info("获取到联系人列表");
                 syncCheck();
-                batchGetContact();
-                try {
-                    FileUtils.writeStringToFile(new File("e:\\a.js"), content.toJSONString(), "gbk");
-                } catch (IOException e) {
-                    // TODO Auto-generated catch block
-                    e.printStackTrace();
-                }
+                batchGetContact(Lists.newArrayList());
                 contactService.updateContact(content.getJSONArray("MemberList"));
                 login = true;
                 synchronized (BaseServer.this.user) {
@@ -156,9 +144,50 @@ public abstract class BaseServer implements Runnable, WxApi {
     
     /**
      * 获取通讯录
+     * 
+     * @param userNames x
      */
-    private void batchGetContact() {
+    private void batchGetContact(List<String> userNames) {
+        if (CollectionUtils.isEmpty(userNames)) {
+            return;
+        }
         
+        Request.Builder builder = initRequestBuilder("/cgi-bin/mmwebwx-bin/webwxbatchgetcontact", //
+            "type", "ex", //
+            "pass_ticket", user.getPassTicket(), //
+            "r", System.currentTimeMillis() //
+        );
+        
+        List<Map<String, String>> members = Lists.newArrayList();
+        for (String userName : userNames) {
+            members.add(ImmutableMap.of("UserName", userName, "ChatRoomId", ""));
+        }
+        
+        // 获取某个
+        Map<String, Object> requestBody = baseRequest();
+        requestBody.put("Count", userNames.size());
+        requestBody.put("List", members);
+        
+        builder.post(WxUtil.createJsonRequest(requestBody));
+        webClient.asynCall(builder.build(), new BaseJsonCallback() {
+            
+            @Override
+            void process(Call call, Response response, JSONObject content) {
+                
+                Integer ret = TypeUtils.castToInt(JSONPath.eval(content, "BaseResponse.Ret"));
+                if (null == ret || 0 != ret.intValue()) {
+                    return;
+                }
+                
+                JSONArray memberList = content.getJSONArray("MemberList");
+                
+                if (null != memberList) {
+                    for (int i = 0, len = memberList.size(); i < len; i++) {
+                        
+                    }
+                }
+            }
+        });
     }
     
     /**

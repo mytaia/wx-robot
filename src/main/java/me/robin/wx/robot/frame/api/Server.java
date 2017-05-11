@@ -1,8 +1,12 @@
 
 package me.robin.wx.robot.frame.api;
 
+import java.io.File;
+import java.io.IOException;
+import java.util.Date;
 import java.util.Map;
 
+import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -15,11 +19,14 @@ import com.alibaba.fastjson.util.TypeUtils;
 
 import me.robin.wx.robot.frame.WxConst;
 import me.robin.wx.robot.frame.listener.MessageSendListener;
+import me.robin.wx.robot.frame.model.LoginUser;
 import me.robin.wx.robot.frame.model.WxGroup;
 import me.robin.wx.robot.frame.model.WxUser;
 import me.robin.wx.robot.frame.util.WxUtil;
 import okhttp3.Call;
+import okhttp3.MultipartBody;
 import okhttp3.Request;
+import okhttp3.RequestBody;
 import okhttp3.Response;
 
 /**
@@ -40,9 +47,9 @@ public class Server extends BaseServer {
     /**
      * 发送文本消息
      *
-     * @param user
-     * @param message
-     * @param messageSendListener
+     * @param user x
+     * @param message x
+     * @param messageSendListener x
      */
     @Override
     public void sendTextMessage(String user, String message) {
@@ -104,6 +111,48 @@ public class Server extends BaseServer {
                 }
             }
         });
+    }
+    
+    /**
+     * 发送图片消息
+     *
+     * @param user x
+     * @param message x
+     * @param messageSendListener x
+     */
+    public void sendImageMessage(String touser, String message, File image) {
+        // 先上传图片
+    }
+    
+    private String uploadFile(LoginUser user, File file) {
+        long size = FileUtils.sizeOf(file);
+        MultipartBody body = new MultipartBody.Builder() //
+            .setType(MultipartBody.FORM) //
+            .addFormDataPart("id", "WU_FILE_0") //
+            .addFormDataPart("type", "image/jpeg") //
+            .addFormDataPart("lastModifiedDate", new Date().toString()) //
+            .addFormDataPart("mediatype", "pic") //
+            .addFormDataPart("size", String.valueOf(size)) //
+            .addFormDataPart("uploadmediarequest",
+                "{\"UploadType\":2,\"BaseRequest\":{\"Uin\":561459895,\"Sid\":\"qyP+fE/NfFSAy8Fo\",\"Skey\":\"@crypt_c65f5df8_d0bd6be662b47631b0601d17b782870d\",\"DeviceID\":\"e860124195388090\"},\"ClientMediaId\":1493878600285,\"TotalLen\":553412,\"StartPos\":0,\"DataLen\":553412,\"MediaType\":4,\"FromUserName\":\"@1a0e3e09b31f36360d585d0e4779313b\",\"ToUserName\":\"@@105fcca34252b098db2faf09d17da73906a749ccc599120c687996ad47e94887\",\"FileMd5\":\"9d43ce83960ab05b6a17ec9a7abcde55\"}") //
+            .addFormDataPart("webwx_data_ticket", user.getPassTicket()) //
+            .addFormDataPart("pass_ticket", "undefined") //
+            .addFormDataPart("mediatype", "pic") //
+            .addFormDataPart("filename", "22.jpg", RequestBody.create(null, file)) //
+            
+            .build();
+        
+        Request request = new Request.Builder()//
+            .url("https://file.wx2.qq.com/cgi-bin/mmwebwx-bin/webwxuploadmedia?f=json")//
+            .post(body) //
+            .build();
+        
+        try {
+            JSONObject response = webClient.executeJson(request);
+        } catch (IOException e) {
+            logger.error("上传文件时异常", e);
+        }
+        return null;
     }
     
     /**

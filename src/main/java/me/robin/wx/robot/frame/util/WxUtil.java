@@ -8,6 +8,7 @@ import org.apache.commons.lang3.StringUtils;
 
 import com.alibaba.fastjson.JSON;
 
+import me.robin.wx.robot.frame.WxConst;
 import me.robin.wx.robot.frame.model.WxMsg;
 import okhttp3.MediaType;
 import okhttp3.RequestBody;
@@ -64,7 +65,18 @@ public class WxUtil {
         consumer.accept(requestBody);
     }
     
+    /**
+     * FIXME 方法注释信息(此标记由Eclipse自动生成,请填写注释信息删除此标记)
+     *
+     * @param data x
+     * @return x
+     */
+    public static RequestBody createJsonRequest(Object data) {
+        return RequestBody.create(MediaType.parse("application/json;charset=utf-8"), JSON.toJSONString(data));
+    }
+    
     public static String revertXml(String content) {
+        content = StringUtils.substringAfterLast(content, "<br/>");
         content = StringUtils.replace(content, "&lt;", "<");
         return StringUtils.replace(content, "&gt;", ">");
     }
@@ -77,5 +89,25 @@ public class WxUtil {
      */
     public static boolean isGroupMessage(WxMsg msg) {
         return msg != null && msg.getToUserName() != null && msg.getToUserName().startsWith("@@");
+    }
+    
+    /**
+     * 是否是群组消息
+     *
+     * @param msg x
+     * @return x
+     */
+    public static boolean isAdminMessage(String msg) {
+        return msg != null && msg.startsWith(WxConst.ADMIN_MESSAGE_PREX);
+    }
+    
+    /**
+     * 是否是群组消息
+     *
+     * @param msg x
+     * @return x
+     */
+    public static String builddminMessage(String msg) {
+        return WxConst.ADMIN_MESSAGE_PREX + msg;
     }
 }

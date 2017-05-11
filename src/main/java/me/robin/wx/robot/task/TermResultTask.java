@@ -47,7 +47,7 @@ public class TermResultTask {
     /**
      * FIXME 方法注释信息(此标记由Eclipse自动生成,请填写注释信息删除此标记)
      */
-    @Scheduled(cron = "0 12/15 9-22 * * ?")
+    @Scheduled(cron = "0 12/2 9-22 * * ?")
     public void sendTermResult() {
         WxUser user = contactService.queryUser("888");
         if (user != null) {
