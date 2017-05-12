@@ -25,9 +25,9 @@ package me.robin.wx.robot.lot.constant;
  */
 public enum GameEnum implements EnumAware {
     /** FIXME */
-    K10("K10", "快乐十分"),
+    K10("k10", "快乐十分"),
     /** FIXME */
-    K3("K3", "快三");
+    K3("k3", "快三");
     
     /** FIXME */
     private String id;
@@ -50,7 +50,7 @@ public enum GameEnum implements EnumAware {
      * @return the text
      */
     @Override
-    public String id() {
+    public String code() {
         return id;
     }
     

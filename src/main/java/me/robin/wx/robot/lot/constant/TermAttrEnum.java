@@ -24,22 +24,26 @@ package me.robin.wx.robot.lot.constant;
  * @version 2017年5月11日 作者
  */
 public enum TermAttrEnum implements EnumAware {
+    
     /** FIXME */
-    ZhongHeDa("总和大"),
+    ZhongHeDa("zh_da", "总和大"),
     /** FIXME */
-    ZhongHeXiao("总和小"),
+    ZhongHeXiao("zh_xiao", "总和小"),
     /** FIXME */
-    ZhongHeDan("总和单"),
+    ZhongHeDan("zh_dan", "总和单"),
     /** FIXME */
-    ZhongHeSuang("总和双"),
+    ZhongHeSuang("zh_shuang", "总和双"),
     /** FIXME */
-    ZhongHeWeiDa("总和尾大"),
+    ZhongHeWeiDa("zh_weida", "总和尾大"),
     /** FIXME */
-    ZhongHeWeiXiao("总和尾小"),
+    ZhongHeWeiXiao("zh_weixiao", "总和尾小"),
     /** FIXME */
-    Long("龙"),
+    Long("lh_long", "龙"),
     /** FIXME */
-    Hu("虎");
+    Hu("lh_hu", "虎");
+    
+    /** FIXME */
+    private String code;
     
     /** FIXME */
     private String description;
@@ -47,9 +51,11 @@ public enum TermAttrEnum implements EnumAware {
     /**
      * 构造函数
      * 
+     * @param code x
      * @param description x
      */
-    TermAttrEnum(String description) {
+    TermAttrEnum(String code, String description) {
+        this.code = code;
         this.description = description;
     }
     
@@ -57,8 +63,8 @@ public enum TermAttrEnum implements EnumAware {
      * @return the text
      */
     @Override
-    public String id() {
-        return name();
+    public String code() {
+        return code;
     }
     
     /**
@@ -67,6 +73,36 @@ public enum TermAttrEnum implements EnumAware {
     @Override
     public String description() {
         return description;
+    }
+    
+    /**
+     * x
+     * 
+     * @param code x
+     * @return the text
+     */
+    public static TermAttrEnum fromCode(String code) {
+        for (TermAttrEnum item : values()) {
+            if (item.code.equals(code)) {
+                return item;
+            }
+        }
+        return null;
+    }
+    
+    /**
+     * x
+     * 
+     * @param description x
+     * @return the text
+     */
+    public static TermAttrEnum fromDescription(String description) {
+        for (TermAttrEnum item : values()) {
+            if (item.description.equals(description)) {
+                return item;
+            }
+        }
+        return null;
     }
     
 }

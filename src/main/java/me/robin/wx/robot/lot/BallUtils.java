@@ -39,6 +39,17 @@ public class BallUtils {
     /**
      * xx
      * 
+     * @param game x
+     * @param key x
+     * @return x
+     */
+    public static String playedId(String game, String key) {
+        return String.format("%s:%s", game, key);
+    }
+    
+    /**
+     * xx
+     * 
      * @param num x
      * @param length x
      * @return x

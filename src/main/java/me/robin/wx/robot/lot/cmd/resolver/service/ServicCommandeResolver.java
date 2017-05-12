@@ -5,10 +5,16 @@
  * 复制、修改或发布本软件.
  ******************************************************************************/
 
-package me.robin.wx.robot.lot.constant;
+package me.robin.wx.robot.lot.cmd.resolver.service;
+
+import org.springframework.stereotype.Component;
+
+import me.robin.wx.robot.lot.cmd.Command;
+import me.robin.wx.robot.lot.cmd.RequestContext;
+import me.robin.wx.robot.lot.cmd.resolver.CommandResolver;
 
 /**
- * FIXME 类注释信息(此标记自动生成,注释填写完成后请删除)
+ * 指令识别
  * 
  * <pre>
  * [
@@ -23,19 +29,12 @@ package me.robin.wx.robot.lot.constant;
  * @since 1.0
  * @version 2017年5月11日 作者
  */
-public interface EnumAware {
+@Component
+public class ServicCommandeResolver implements CommandResolver {
     
-    /**
-     * FIXME 方法注释信息(此标记由Eclipse自动生成,请填写注释信息删除此标记)
-     *
-     * @return x
-     */
-    public String code();
-    
-    /**
-     * FIXME 方法注释信息(此标记由Eclipse自动生成,请填写注释信息删除此标记)
-     *
-     * @return x
-     */
-    public String description();
+    @Override
+    public Command resolveCommand(RequestContext context) {
+        // TODO 自动生成方法存根注释，方法实现时请删除此注释
+        return null;
+    }
 }

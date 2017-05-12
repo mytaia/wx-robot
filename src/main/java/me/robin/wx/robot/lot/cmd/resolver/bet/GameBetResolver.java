@@ -5,10 +5,10 @@
  * 复制、修改或发布本软件.
  ******************************************************************************/
 
-package me.robin.wx.robot.lot.constant;
+package me.robin.wx.robot.lot.cmd.resolver.bet;
 
 /**
- * FIXME 类注释信息(此标记自动生成,注释填写完成后请删除)
+ * 指令识别
  * 
  * <pre>
  * [
@@ -23,19 +23,25 @@ package me.robin.wx.robot.lot.constant;
  * @since 1.0
  * @version 2017年5月11日 作者
  */
-public interface EnumAware {
+public abstract class GameBetResolver implements BetResolver {
+    
+    /** FIXME */
+    private String game;
     
     /**
-     * FIXME 方法注释信息(此标记由Eclipse自动生成,请填写注释信息删除此标记)
-     *
-     * @return x
+     * 构造函数
+     * 
+     * @param game x
+     * @param regexs x
      */
-    public String code();
+    public GameBetResolver(String game) {
+        this.game = game;
+    }
     
     /**
-     * FIXME 方法注释信息(此标记由Eclipse自动生成,请填写注释信息删除此标记)
-     *
-     * @return x
+     * @return the game
      */
-    public String description();
+    public String getGame() {
+        return game;
+    }
 }

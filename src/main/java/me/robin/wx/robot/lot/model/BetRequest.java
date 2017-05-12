@@ -10,6 +10,8 @@ package me.robin.wx.robot.lot.model;
 import java.math.BigDecimal;
 import java.util.Date;
 
+import me.robin.wx.robot.lot.played.Played;
+
 /**
  * 用户最原始的请求
  * 

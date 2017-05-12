@@ -7,8 +7,9 @@ import org.springframework.stereotype.Component;
 
 import me.robin.wx.robot.frame.model.WxMsg;
 import me.robin.wx.robot.frame.util.WxUtil;
-import me.robin.wx.robot.lot.model.BetRequest;
-import me.robin.wx.robot.lot.resolver.BetResolver;
+import me.robin.wx.robot.lot.cmd.Command;
+import me.robin.wx.robot.lot.cmd.Commander;
+import me.robin.wx.robot.lot.cmd.RequestContext;
 
 /** 
  */
@@ -17,7 +18,7 @@ public class TextMessageHandler extends AbstractMessageHandler {
     
     /** FIXME */
     @Autowired
-    BetResolver messageBetResolver;
+    Commander commander;
     
     @Override
     public void handle(WxMsg message) {
@@ -30,7 +31,6 @@ public class TextMessageHandler extends AbstractMessageHandler {
             return;
         } else if (StringUtils.equals(server.loginUser().getUserName(), message.getFromUserName())) {
             // 如果是管理员指令
-            
             return;
         }
         
@@ -40,11 +40,28 @@ public class TextMessageHandler extends AbstractMessageHandler {
             return;
         }
         
-        BetRequest bet = messageBetResolver.resolver(content);
-        if (bet == null) {
+        RequestContext contex = createContext(message);
+        
+        // 识别投注请求
+        Command cmd = commander.resolveCommand(contex);
+        if (cmd == null) {
             logger.debug("无法解析的消息[{}]", content);
+            return;
         }
         
+        cmd.execute(contex);
+    }
+    
+    /**
+     * FIXME 方法注释信息(此标记由Eclipse自动生成,请填写注释信息删除此标记)
+     *
+     * @param wxMsg x
+     * @return x
+     */
+    private RequestContext createContext(WxMsg wxMsg) {
+        RequestContext context = new RequestContext();
+        context.setMessage(wxMsg);
+        return context;
     }
     
 }

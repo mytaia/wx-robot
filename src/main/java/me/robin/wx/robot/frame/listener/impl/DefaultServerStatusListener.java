@@ -3,6 +3,7 @@ package me.robin.wx.robot.frame.listener.impl;
 
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ExecutorService;
 
 import javax.annotation.PostConstruct;
 
@@ -15,6 +16,7 @@ import com.alibaba.fastjson.JSONArray;
 
 import me.robin.wx.robot.frame.WxConst;
 import me.robin.wx.robot.frame.api.WxApi;
+import me.robin.wx.robot.frame.exetor.ExecutorServiceFactory;
 import me.robin.wx.robot.frame.listener.ServerStatusListener;
 import me.robin.wx.robot.frame.message.MsgChainHandler;
 import me.robin.wx.robot.frame.message.MsgHandler;
@@ -37,6 +39,9 @@ public class DefaultServerStatusListener implements ServerStatusListener {
     /** FIXME */
     @Autowired
     private TextMessageHandler textMessageHandler;
+    
+    /** FIXME */
+    private ExecutorService messageExecutorService = ExecutorServiceFactory.createExecutorService(50, "messageProcessThead");
     
     /**
      * FIXME 方法注释信息(此标记由Eclipse自动生成,请填写注释信息删除此标记)
@@ -68,11 +73,18 @@ public class DefaultServerStatusListener implements ServerStatusListener {
             int msgType = message.getMsgType();
             logger.info("收到新消息:{} {} {} {} {}", MsgId, FromUserName, ToUserName, Content, msgType);
             MsgHandler msgHandler = this.handlerMap.get(msgType);
-            if (null != msgHandler) {
-                msgHandler.handle(message);
-            } else {
+            if (null == msgHandler) {
                 logger.info("没有定义消息处理器 msgType:{}", msgType);
+                continue;
             }
+            
+            messageExecutorService.submit(new Runnable() {
+                
+                @Override
+                public void run() {
+                    msgHandler.handle(message);
+                }
+            });
         }
     }
     

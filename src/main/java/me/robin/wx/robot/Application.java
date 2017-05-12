@@ -6,6 +6,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.ApplicationContext;
+import org.springframework.context.annotation.ImportResource;
 
 import me.robin.wx.robot.frame.api.Server;
 
@@ -26,6 +27,7 @@ import me.robin.wx.robot.frame.api.Server;
  * @version 2017年5月3日 作者
  */
 @SpringBootApplication
+@ImportResource(value="classpath:*applicationContext.xml")
 public class Application {
     
     /** FIXME */
