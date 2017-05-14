@@ -14,8 +14,7 @@
 		http://www.springframework.org/schema/data/jpa http://www.springframework.org/schema/data/jpa/spring-jpa-1.3.xsd"
 	default-lazy-init="true">
 
-	<description>Spring公共配置 </description> 
-	
+	<description>Spring公共配置 </description>  
  
 	<!-- Jpa Entity Manager 配置 -->
 	<bean id="entityManagerFactory"
