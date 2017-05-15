@@ -18,8 +18,9 @@ import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 
 import me.robin.wx.robot.lot.compant.WebClinet;
+import me.robin.wx.robot.lot.core.BetRequest;
+import me.robin.wx.robot.lot.core.RequestContext;
 import me.robin.wx.robot.lot.entity.Bet;
-import me.robin.wx.robot.lot.model.BetRequest;
 import okhttp3.FormBody;
 import okhttp3.Request;
 import okhttp3.Response;
@@ -48,7 +49,7 @@ public class BetCommand implements Command {
     
     @Override
     public void execute(RequestContext context) {
-        BetRequest request = context.getBetRequest();
+        BetRequest request = (BetRequest) context.getMessageRequest();
         logger.info("投注指令的处理" + request);
         // 向网盘提交,要做一些处理
         List<Bet> bets = request.getPlayed().extractBet(request);

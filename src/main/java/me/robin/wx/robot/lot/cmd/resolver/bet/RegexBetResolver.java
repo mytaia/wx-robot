@@ -5,7 +5,7 @@ package me.robin.wx.robot.lot.cmd.resolver.bet;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import me.robin.wx.robot.lot.model.BetRequest;
+import me.robin.wx.robot.lot.core.BetRequest;
 
 /**
  * 指令识别

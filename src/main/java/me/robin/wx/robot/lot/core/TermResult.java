@@ -1,6 +1,6 @@
 /**create 2017-05-15**/
 
-package me.robin.wx.robot.lot.model;
+package me.robin.wx.robot.lot.core;
 
 /**
  * 每期的开奖结果

@@ -2,10 +2,9 @@
  * create by 2017年5月14日
  ******************************************************************************/
 
-package me.robin.wx.robot.lot.cmd;
+package me.robin.wx.robot.lot.core;
 
 import me.robin.wx.robot.frame.model.WxMsg;
-import me.robin.wx.robot.lot.model.BetRequest;
 
 /**
  * FIXME 类注释信息(此标记自动生成,注释填写完成后请删除)
@@ -29,7 +28,7 @@ public class RequestContext {
     private WxMsg message;
     
     /** FIXME */
-    private BetRequest betRequest;
+    private MessageRequest messageRequest;
     
     /**
      * FIXME 方法注释信息(此标记由Eclipse自动生成,请填写注释信息删除此标记)
@@ -55,17 +54,17 @@ public class RequestContext {
     }
     
     /**
-     * @return the betRequest
+     * @return the messageRequest
      */
-    public BetRequest getBetRequest() {
-        return betRequest;
+    public MessageRequest getMessageRequest() {
+        return messageRequest;
     }
     
     /**
-     * @param betRequest the betRequest to set
+     * @param messageRequest the messageRequest to set
      */
-    public void setBetRequest(BetRequest betRequest) {
-        this.betRequest = betRequest;
+    public void setMessageRequest(MessageRequest messageRequest) {
+        this.messageRequest = messageRequest;
     }
     
 }

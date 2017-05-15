@@ -9,7 +9,7 @@ import me.robin.wx.robot.frame.model.WxMsg;
 import me.robin.wx.robot.frame.util.WxUtil;
 import me.robin.wx.robot.lot.cmd.Command;
 import me.robin.wx.robot.lot.cmd.Commander;
-import me.robin.wx.robot.lot.cmd.RequestContext;
+import me.robin.wx.robot.lot.core.RequestContext;
 
 /** 
  */
@@ -42,7 +42,7 @@ public class TextMessageHandler extends AbstractMessageHandler {
         
         RequestContext contex = createContext(message);
         
-        // 识别投注请求
+        // 识别投注请求sbs
         Command cmd = commander.resolveCommand(contex);
         if (cmd == null) {
             logger.debug("无法解析的消息[{}]", content);

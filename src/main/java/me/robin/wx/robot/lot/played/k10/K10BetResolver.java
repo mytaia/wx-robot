@@ -19,7 +19,7 @@ import me.robin.wx.robot.lot.constant.BallAttrEnum;
 import me.robin.wx.robot.lot.constant.EnumAware;
 import me.robin.wx.robot.lot.constant.GameEnum;
 import me.robin.wx.robot.lot.constant.TermAttrEnum;
-import me.robin.wx.robot.lot.model.BetRequest;
+import me.robin.wx.robot.lot.core.BetRequest;
 import me.robin.wx.robot.lot.played.Played;
 
 /**
@@ -155,7 +155,7 @@ public class K10BetResolver extends ComboBetResolver {
         @Override
         public void resolver(String input, BetRequest bet, Pattern regex, Matcher matcher) {
             String money = matcher.group("money");
-            bet.setMoney(new BigDecimal(money));
+            bet.setBetMoney(new BigDecimal(money));
             TermAttrEnum tremAttr = TermAttrEnum.fromDescription(matcher.group("termAttr"));
             Played played = playeds.getTermAttrPlayed(tremAttr);
             bet.setPlayed(played);
@@ -193,7 +193,7 @@ public class K10BetResolver extends ComboBetResolver {
         @Override
         public void resolver(String input, BetRequest bet, Pattern regex, Matcher matcher) {
             String money = matcher.group("money");
-            bet.setMoney(new BigDecimal(money));
+            bet.setBetMoney(new BigDecimal(money));
             String ballAttr = matcher.group("ballAttr");
             String ballIndex = matcher.group("ballIndex");
             if (ballIndex == null && BALL_NUM_TE.equals(matcher.group("ball"))) {
@@ -239,7 +239,7 @@ public class K10BetResolver extends ComboBetResolver {
         @Override
         public void resolver(String input, BetRequest bet, Pattern regex, Matcher matcher) {
             String money = matcher.group("money");
-            bet.setMoney(new BigDecimal(money));
+            bet.setBetMoney(new BigDecimal(money));
             String ballNum = matcher.group("ballNum");
             String ballIndex = matcher.group("ballIndex");
             if (ballIndex == null && BALL_NUM_TE.equals(matcher.group("ball"))) {
@@ -283,7 +283,7 @@ public class K10BetResolver extends ComboBetResolver {
         @Override
         public void resolver(String input, BetRequest request, Pattern regex, Matcher matcher) {
             String money = matcher.group("money");
-            request.setMoney(new BigDecimal(money));
+            request.setBetMoney(new BigDecimal(money));
             int count = Integer.parseInt(matcher.group("ballCount"));
             int in = Integer.parseInt(matcher.group("ballIn"));
             String ballNum = matcher.group("ballNum");

@@ -3,10 +3,10 @@
 package me.robin.wx.robot.lot.played;
 
 import me.robin.wx.robot.lot.constant.GameResultEnum;
+import me.robin.wx.robot.lot.core.BetResult;
+import me.robin.wx.robot.lot.core.TermResult;
 import me.robin.wx.robot.lot.entity.Bet;
 import me.robin.wx.robot.lot.entity.GamePlayed;
-import me.robin.wx.robot.lot.model.BetResult;
-import me.robin.wx.robot.lot.model.TermResult;
 
 /**
  * FIXME 类注释信息(此标记自动生成,注释填写完成后请删除)

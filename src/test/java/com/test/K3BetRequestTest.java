@@ -15,7 +15,7 @@ import org.springframework.test.context.junit4.SpringRunner;
 import me.robin.wx.robot.Application;
 import me.robin.wx.robot.lot.constant.BallAttrEnum;
 import me.robin.wx.robot.lot.constant.TermAttrEnum;
-import me.robin.wx.robot.lot.model.BetRequest;
+import me.robin.wx.robot.lot.core.BetRequest;
 import me.robin.wx.robot.lot.played.BallAttrPlayed;
 import me.robin.wx.robot.lot.played.BallNumMatchPlayed;
 import me.robin.wx.robot.lot.played.k3.K3BetResolver;
@@ -57,33 +57,33 @@ public class K3BetRequestTest {
          */
         
         BetRequest request = betResolver.resolver("快3/总和大/10");
-        Assert.assertEquals(request.getMoney(), new BigDecimal("10"));
+        Assert.assertEquals(request.getBetMoney(), new BigDecimal("10"));
         Assert.assertEquals(request.getPlayed().getCode(), TermAttrEnum.ZhongHeDa.code());
         
         request = betResolver.resolver("快3/总和单/10");
-        Assert.assertEquals(request.getMoney(), new BigDecimal("10"));
+        Assert.assertEquals(request.getBetMoney(), new BigDecimal("10"));
         Assert.assertEquals(request.getPlayed().getCode(), TermAttrEnum.ZhongHeDan.code());
         
         request = betResolver.resolver("快3/平1/单/10");
-        Assert.assertEquals(request.getMoney(), new BigDecimal("10"));
+        Assert.assertEquals(request.getBetMoney(), new BigDecimal("10"));
         Assert.assertEquals(((BallAttrPlayed) request.getPlayed()).getBallIndex(), 1);
         Assert.assertEquals(request.getPlayed().getCode(), "b1_" + BallAttrEnum.Dan.code());
         
         request = betResolver.resolver("快3/虎/10");
-        Assert.assertEquals(request.getMoney(), new BigDecimal("10"));
+        Assert.assertEquals(request.getBetMoney(), new BigDecimal("10"));
         Assert.assertEquals(request.getPlayed().getCode(), TermAttrEnum.Hu.code());
         
         request = betResolver.resolver("快3/龙/10");
-        Assert.assertEquals(request.getMoney(), new BigDecimal("10"));
+        Assert.assertEquals(request.getBetMoney(), new BigDecimal("10"));
         Assert.assertEquals(request.getPlayed().getCode(), TermAttrEnum.Long.code());
         
         request = betResolver.resolver("快3/333/10");
-        Assert.assertEquals(request.getMoney(), new BigDecimal("10"));
+        Assert.assertEquals(request.getBetMoney(), new BigDecimal("10"));
         Assert.assertEquals(request.getPlayed().getCode(), K3PlayedEnum.SanTongHaoDanXuan.code() + "_333");
         Assert.assertEquals(((BallNumMatchPlayed) request.getPlayed()).getNum(), "333");
         
         request = betResolver.resolver("快3/111/10");
-        Assert.assertEquals(request.getMoney(), new BigDecimal("10"));
+        Assert.assertEquals(request.getBetMoney(), new BigDecimal("10"));
         Assert.assertEquals(request.getPlayed().getCode(), K3PlayedEnum.SanTongHaoDanXuan.code() + "_111");
         Assert.assertEquals(((BallNumMatchPlayed) request.getPlayed()).getNum(), "111");
         

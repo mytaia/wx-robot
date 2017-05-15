@@ -3,9 +3,9 @@
 package me.robin.wx.robot.lot.played;
 
 import me.robin.wx.robot.lot.constant.GameResultEnum;
+import me.robin.wx.robot.lot.core.TermResult;
 import me.robin.wx.robot.lot.entity.Bet;
 import me.robin.wx.robot.lot.entity.GamePlayed;
-import me.robin.wx.robot.lot.model.TermResult;
 
 /**
  * 匹配到所有的球都正确，但

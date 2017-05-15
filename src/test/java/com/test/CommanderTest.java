@@ -13,7 +13,7 @@ import me.robin.wx.robot.Application;
 import me.robin.wx.robot.frame.model.WxMsg;
 import me.robin.wx.robot.lot.cmd.BetCommand;
 import me.robin.wx.robot.lot.cmd.Commander;
-import me.robin.wx.robot.lot.cmd.RequestContext;
+import me.robin.wx.robot.lot.core.RequestContext;
 
 /**
  * FIXME 类注释信息(此标记自动生成,注释填写完成后请删除)

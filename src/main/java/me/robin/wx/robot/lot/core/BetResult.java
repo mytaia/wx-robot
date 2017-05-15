@@ -1,5 +1,5 @@
 
-package me.robin.wx.robot.lot.model;
+package me.robin.wx.robot.lot.core;
 
 import me.robin.wx.robot.lot.constant.GameResultEnum;
 import me.robin.wx.robot.lot.entity.Bet;
