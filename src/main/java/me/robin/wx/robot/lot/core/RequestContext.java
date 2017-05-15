@@ -47,6 +47,7 @@ public class RequestContext {
     }
     
     /**
+<<<<<<< HEAD
      * @return the message
      */
     public String getFromUserName() {
@@ -54,6 +55,8 @@ public class RequestContext {
     }
     
     /**
+=======
+>>>>>>> branch 'master' of https://github.com/mytaia/wx-robot.git
      * @param message the message to set
      */
     public void setMessage(WxMsg message) {
