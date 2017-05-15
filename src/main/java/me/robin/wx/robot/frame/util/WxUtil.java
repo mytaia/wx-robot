@@ -76,9 +76,10 @@ public class WxUtil {
     }
     
     public static String revertXml(String content) {
-        content = StringUtils.substringAfterLast(content, "<br/>");
-        content = StringUtils.replace(content, "&lt;", "<");
-        return StringUtils.replace(content, "&gt;", ">");
+        String str = StringUtils.trim(content);
+        str = StringUtils.substringAfterLast(str, "<br/>");
+        str = StringUtils.replace(str, "&lt;", "<");
+        return StringUtils.replace(str, "&gt;", ">");
     }
     
     /**
@@ -88,7 +89,7 @@ public class WxUtil {
      * @return x
      */
     public static boolean isGroupMessage(WxMsg msg) {
-        return msg != null && msg.getToUserName() != null && msg.getToUserName().startsWith("@@");
+        return msg != null && msg.getFromUserName() != null && msg.getFromUserName().startsWith("@@");
     }
     
     /**

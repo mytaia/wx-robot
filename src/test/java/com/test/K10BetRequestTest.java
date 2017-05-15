@@ -15,7 +15,7 @@ import org.springframework.test.context.junit4.SpringRunner;
 import me.robin.wx.robot.Application;
 import me.robin.wx.robot.lot.constant.BallComboEnum;
 import me.robin.wx.robot.lot.constant.TermAttrEnum;
-import me.robin.wx.robot.lot.model.BetRequest;
+import me.robin.wx.robot.lot.core.BetRequest;
 import me.robin.wx.robot.lot.played.k10.K10BetResolver;
 
 /**
@@ -49,30 +49,30 @@ public class K10BetRequestTest {
     @Test
     public void test() {
         BetRequest request = betResolver.resolver("平2/单/10");
-        Assert.assertEquals(request.getMoney(), new BigDecimal("10"));
+        Assert.assertEquals(request.getBetMoney(), new BigDecimal("10"));
         Assert.assertEquals(request.getPlayed().getCode(), "b2_dan");
         
         request = betResolver.resolver("平5/单/10");
-        Assert.assertEquals(request.getMoney(), new BigDecimal("10"));
+        Assert.assertEquals(request.getBetMoney(), new BigDecimal("10"));
         Assert.assertEquals(request.getPlayed().getCode(), "b5_dan");
         
         request = betResolver.resolver("特码/单/10");
-        Assert.assertEquals(request.getMoney(), new BigDecimal("10"));
+        Assert.assertEquals(request.getBetMoney(), new BigDecimal("10"));
         Assert.assertEquals(request.getPlayed().getCode(), "b5_dan");
         
         request = betResolver.resolver("虎/10");
-        Assert.assertEquals(request.getMoney(), new BigDecimal("10"));
+        Assert.assertEquals(request.getBetMoney(), new BigDecimal("10"));
         Assert.assertEquals(request.getPlayed().getCode(), TermAttrEnum.Hu.code());
         
         request = betResolver.resolver("1中1/10");
         Assert.assertEquals(request, null);
         
         request = betResolver.resolver("1中1/2,3/10");
-        Assert.assertEquals(request.getMoney(), new BigDecimal("10"));
+        Assert.assertEquals(request.getBetMoney(), new BigDecimal("10"));
         Assert.assertEquals(request.getPlayed().getCode(), BallComboEnum.In1_1.code());
         
         request = betResolver.resolver("5中3/2,3，4,5,6,7/10");
-        Assert.assertEquals(request.getMoney(), new BigDecimal("10"));
+        Assert.assertEquals(request.getBetMoney(), new BigDecimal("10"));
         Assert.assertEquals(request.getPlayed().getCode(), BallComboEnum.In5_3.code());
     }
     

@@ -4,6 +4,8 @@
 
 package me.robin.wx.robot.lot.cmd;
 
+import me.robin.wx.robot.lot.core.RequestContext;
+
 /**
  * FIXME 类注释信息(此标记自动生成,注释填写完成后请删除)
  * 

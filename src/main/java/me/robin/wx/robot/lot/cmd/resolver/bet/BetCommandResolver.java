@@ -9,9 +9,9 @@ import org.springframework.stereotype.Component;
 
 import me.robin.wx.robot.lot.cmd.BetCommand;
 import me.robin.wx.robot.lot.cmd.Command;
-import me.robin.wx.robot.lot.cmd.RequestContext;
 import me.robin.wx.robot.lot.cmd.resolver.CommandResolver;
-import me.robin.wx.robot.lot.model.BetRequest;
+import me.robin.wx.robot.lot.core.BetRequest;
+import me.robin.wx.robot.lot.core.RequestContext;
 import me.robin.wx.robot.lot.played.k10.K10BetResolver;
 import me.robin.wx.robot.lot.played.k3.K3BetResolver;
 
@@ -66,9 +66,8 @@ public class BetCommandResolver implements CommandResolver {
         if (request == null) {
             return null;
         }
-        context.setBetRequest(request);
+        context.setMessageRequest(request);
         return betCommand;
-        
     }
     
 }

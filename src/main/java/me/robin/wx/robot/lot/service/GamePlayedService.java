@@ -63,4 +63,13 @@ public class GamePlayedService {
     public List<GamePlayed> save(List<GamePlayed> Playeds) {
         return playDao.save(Playeds);
     }
+    
+    /**
+     * FIXME 方法注释信息(此标记由Eclipse自动生成,请填写注释信息删除此标记)
+     *
+     * @return x
+     */
+    public List<GamePlayed> findAll() {
+        return playDao.findAll();
+    }
 }

@@ -10,10 +10,11 @@ import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringRunner;
 
 import me.robin.wx.robot.Application;
+import me.robin.wx.robot.frame.api.WxMessageSender;
 import me.robin.wx.robot.frame.model.WxMsg;
 import me.robin.wx.robot.lot.cmd.BetCommand;
 import me.robin.wx.robot.lot.cmd.Commander;
-import me.robin.wx.robot.lot.cmd.RequestContext;
+import me.robin.wx.robot.lot.core.RequestContext;
 
 /**
  * FIXME 类注释信息(此标记自动生成,注释填写完成后请删除)
@@ -40,11 +41,15 @@ public class CommanderTest {
     @Autowired
     private Commander commander;
     
+    @Autowired
+    private WxMessageSender sender;
+    
     /**
      * FIXME 方法注释信息(此标记由Eclipse自动生成,请填写注释信息删除此标记)
      */
     @Test
     public void test() {
+        sender.sendTextMessage("xx", "abc");
         RequestContext context = new RequestContext();
         WxMsg msg = new WxMsg();
         msg.setContent("平2/单/10");

@@ -2,14 +2,13 @@
 
 package me.robin.wx.robot.lot.played.k3;
 
-import org.springframework.beans.factory.InitializingBean;
 import org.springframework.stereotype.Component;
 
 import me.robin.wx.robot.lot.constant.BallAttrEnum;
 import me.robin.wx.robot.lot.constant.GameEnum;
 import me.robin.wx.robot.lot.constant.TermAttrEnum;
-import me.robin.wx.robot.lot.played.DatabasePlayeds;
 import me.robin.wx.robot.lot.played.Played;
+import me.robin.wx.robot.lot.played.Playeds;
 
 /**
  * FIXME 类注释信息(此标记自动生成,注释填写完成后请删除)
@@ -28,7 +27,7 @@ import me.robin.wx.robot.lot.played.Played;
  * @version 2017年5月11日 作者
  */
 @Component
-public class K3Playeds extends DatabasePlayeds implements InitializingBean {
+public class K3Playeds extends Playeds {
     
     /**
      * 构造函数
@@ -81,12 +80,4 @@ public class K3Playeds extends DatabasePlayeds implements InitializingBean {
         return String.format("b%s_%s", ballIndex, ballAttr.code());
     }
     
-    /**
-     * @throws Exception x
-     * @see org.springframework.beans.factory.InitializingBean#afterPropertiesSet()
-     */
-    @Override
-    public void afterPropertiesSet() throws Exception {
-        loadPlayeds();
-    }
 }

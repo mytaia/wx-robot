@@ -4,9 +4,9 @@ package me.robin.wx.robot.lot.played;
 
 import me.robin.wx.robot.lot.constant.BallAttrEnum;
 import me.robin.wx.robot.lot.constant.GameResultEnum;
+import me.robin.wx.robot.lot.core.TermResult;
 import me.robin.wx.robot.lot.entity.Bet;
 import me.robin.wx.robot.lot.entity.GamePlayed;
-import me.robin.wx.robot.lot.model.TermResult;
 
 /**
  * 第几球是多少

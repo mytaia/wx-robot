@@ -13,6 +13,7 @@ import org.springframework.stereotype.Component;
 import com.google.common.collect.Lists;
 
 import me.robin.wx.robot.lot.cmd.resolver.CommandResolver;
+import me.robin.wx.robot.lot.core.RequestContext;
 
 /**
  * FIXME 类注释信息(此标记自动生成,注释填写完成后请删除)
@@ -38,7 +39,7 @@ public class Commander implements BeanPostProcessor {
     
     /**
      * FIXME 方法注释信息(此标记由Eclipse自动生成,请填写注释信息删除此标记)
-     *
+     * 
      * @param context x
      * @return x
      */

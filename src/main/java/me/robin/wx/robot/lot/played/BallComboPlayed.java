@@ -2,15 +2,19 @@
 
 package me.robin.wx.robot.lot.played;
 
-import java.util.Arrays;
+import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.util.List;
 
+import com.google.common.collect.Lists;
+
+import me.robin.wx.robot.lot.BallUtils;
 import me.robin.wx.robot.lot.constant.BallComboEnum;
 import me.robin.wx.robot.lot.constant.GameResultEnum;
+import me.robin.wx.robot.lot.core.BetRequest;
+import me.robin.wx.robot.lot.core.TermResult;
 import me.robin.wx.robot.lot.entity.Bet;
 import me.robin.wx.robot.lot.entity.GamePlayed;
-import me.robin.wx.robot.lot.model.BetRequest;
-import me.robin.wx.robot.lot.model.TermResult;
 
 /**
  * 组合玩法
@@ -65,12 +69,20 @@ public class BallComboPlayed extends WinPlayed {
     @Override
     public List<Bet> extractBet(BetRequest request) {
         String[] arr = (String[]) request.getInfo();
-        
-        Bet bet = new Bet();
-        bet.setPlayed(bet.getPlayed());
-        bet.setBetMoney(bet.getBetMoney());
-        bet.setPlayedId(bet.getPlayedId());
-        return Arrays.asList(bet);
+        List<Bet> bets = Lists.newArrayList();
+        List<String[]> ballsList = BallUtils.comboSelect(arr, ballComboEnum.getCount());
+        int count = ballsList.size();
+        BigDecimal money = request.getBetMoney().divide(new BigDecimal(count), 2, RoundingMode.DOWN);
+        BigDecimal lastMoney = request.getBetMoney().subtract(money.multiply(new BigDecimal(count - 1)));
+        for (int i = 0; i < count; i++) {
+            Bet bet = new Bet();
+            bet.setPlayed(request.getPlayed());
+            bet.setBetMoney(i < count - 1 ? money : lastMoney);
+            bet.setPlayedId(request.getPlayed().getPlayedId());
+            bet.setBall(String.join(",", ballsList.get(i)));
+            bets.add(bet);
+        }
+        return bets;
     }
     
 }

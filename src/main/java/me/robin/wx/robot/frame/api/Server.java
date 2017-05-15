@@ -44,20 +44,7 @@ public class Server extends BaseServer {
         super(WxConst.APP_ID);
     }
     
-    /**
-     * 发送文本消息
-     *
-     * @param user x
-     * @param message x
-     * @param messageSendListener x
-     */
-    @Override
     public void sendTextMessage(String user, String message) {
-        sendTextMessage(user, message, 0);
-    }
-    
-    @Override
-    public void sendTextMessage(String user, String message, int type) {
         
         if (!checkLogin()) {
             logger.info("还未完成登录,不能发送消息");
@@ -73,10 +60,6 @@ public class Server extends BaseServer {
         if (StringUtils.equals(wxUser.getUserName(), this.user.getUserName())) {
             logger.warn("WEB微信不能给自己发消息");
             return;
-        }
-        
-        if (type == 1) {
-            
         }
         
         Request.Builder builder = initRequestBuilder("/cgi-bin/mmwebwx-bin/webwxsendmsg");

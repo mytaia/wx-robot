@@ -64,6 +64,7 @@ public class DefaultServerStatusListener implements ServerStatusListener {
     @Override
     public void onAddMsgList(JSONArray addMsgList, WxApi api) {
         for (int i = 0; i < addMsgList.size(); i++) {
+            logger.info("收到新消息:{} ", addMsgList.getJSONObject(i));
             WxMsg message = addMsgList.getObject(i, WxMsg.class);
             String MsgId = message.getMsgID();
             String FromUserName = message.getFromUserName();
@@ -78,14 +79,53 @@ public class DefaultServerStatusListener implements ServerStatusListener {
                 continue;
             }
             
-            messageExecutorService.submit(new Runnable() {
-                
-                @Override
-                public void run() {
-                    msgHandler.handle(message);
-                }
-            });
+            messageExecutorService.submit(new MessageHandle(msgHandler, message));
         }
+    }
+    
+    /**
+     * FIXME 类注释信息(此标记自动生成,注释填写完成后请删除)
+     * 
+     * <pre>
+     * [
+     * 调用关系:
+     * 实现接口及父类:
+     * 子类:
+     * 内部类列表:
+     * ]
+     * </pre>
+     * 
+     * @author 作者
+     * @since 1.0
+     * @version 2017年5月15日 作者
+     */
+    class MessageHandle implements Runnable {
+        
+        /** FIXME */
+        private WxMsg message;
+        
+        /** FIXME */
+        private MsgHandler msgHandler;
+        
+        /**
+         * 构造函数
+         * 
+         * @param msgHandler x
+         * @param message x
+         */
+        public MessageHandle(MsgHandler msgHandler, WxMsg message) {
+            this.message = message;
+            this.msgHandler = msgHandler;
+        }
+        
+        /**
+         * @see java.lang.Runnable#run()
+         */
+        @Override
+        public void run() {
+            msgHandler.handle(message);
+        }
+        
     }
     
     @Override

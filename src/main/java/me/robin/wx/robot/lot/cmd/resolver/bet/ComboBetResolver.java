@@ -6,7 +6,7 @@ import java.util.List;
 
 import com.google.common.collect.Lists;
 
-import me.robin.wx.robot.lot.model.BetRequest;
+import me.robin.wx.robot.lot.core.BetRequest;
 
 /**
  * 指令识别

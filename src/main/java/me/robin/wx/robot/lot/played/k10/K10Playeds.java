@@ -2,9 +2,6 @@
 
 package me.robin.wx.robot.lot.played.k10;
 
-import java.util.List;
-
-import org.springframework.beans.factory.InitializingBean;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
 import org.springframework.stereotype.Component;
@@ -12,10 +9,8 @@ import org.springframework.stereotype.Component;
 import me.robin.wx.robot.lot.constant.BallAttrEnum;
 import me.robin.wx.robot.lot.constant.GameEnum;
 import me.robin.wx.robot.lot.constant.TermAttrEnum;
-import me.robin.wx.robot.lot.entity.GamePlayed;
 import me.robin.wx.robot.lot.played.Played;
 import me.robin.wx.robot.lot.played.Playeds;
-import me.robin.wx.robot.lot.played.factory.PlayedFactory;
 import me.robin.wx.robot.lot.service.GamePlayedService;
 
 /**
@@ -35,7 +30,7 @@ import me.robin.wx.robot.lot.service.GamePlayedService;
  * @version 2017年5月11日 作者
  */
 @Component
-public class K10Playeds extends Playeds implements InitializingBean {
+public class K10Playeds extends Playeds {
     
     /** FIXME */
     @Autowired
@@ -52,28 +47,6 @@ public class K10Playeds extends Playeds implements InitializingBean {
      */
     public K10Playeds() {
         super(GameEnum.K10.code());
-    }
-    
-    /**
-     * 所有的玩法
-     */
-    private void loadPlayeds() {
-        List<GamePlayed> playeds = playedService.findByGame(getGame());
-        try {
-            for (GamePlayed gp : playeds) {
-                Class<?> clazz = Class.forName(gp.getPlayedClass());
-                if (PlayedFactory.class.isAssignableFrom(clazz)) {
-                    PlayedFactory factory = (PlayedFactory) applicationContext.getBean(clazz);
-                    Played played = factory.load(gp);
-                    addPlayed(played);
-                } else {
-                    throw new RuntimeException("玩法加载失败[" + gp.toString() + "]");
-                }
-            }
-            logger.info("游戏{}共加载到{}种玩法", this.getGame(), playeds.size());
-        } catch (ClassNotFoundException e) {
-            throw new RuntimeException("玩法加载失败", e);
-        }
     }
     
     /**
@@ -156,12 +129,4 @@ public class K10Playeds extends Playeds implements InitializingBean {
         return String.format("%sz%s", count, in);
     }
     
-    /**
-     * @throws Exception x
-     * @see org.springframework.beans.factory.InitializingBean#afterPropertiesSet()
-     */
-    @Override
-    public void afterPropertiesSet() throws Exception {
-        loadPlayeds();
-    }
 }

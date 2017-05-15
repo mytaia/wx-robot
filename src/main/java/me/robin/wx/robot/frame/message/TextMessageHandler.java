@@ -9,7 +9,7 @@ import me.robin.wx.robot.frame.model.WxMsg;
 import me.robin.wx.robot.frame.util.WxUtil;
 import me.robin.wx.robot.lot.cmd.Command;
 import me.robin.wx.robot.lot.cmd.Commander;
-import me.robin.wx.robot.lot.cmd.RequestContext;
+import me.robin.wx.robot.lot.core.RequestContext;
 
 /** 
  */
@@ -18,7 +18,7 @@ public class TextMessageHandler extends AbstractMessageHandler {
     
     /** FIXME */
     @Autowired
-    Commander commander;
+    private Commander commander;
     
     @Override
     public void handle(WxMsg message) {
@@ -27,10 +27,7 @@ public class TextMessageHandler extends AbstractMessageHandler {
             return;
         }
         // 只接受群组消息,并忽略群主的消息
-        if (WxUtil.isGroupMessage(message)) {
-            return;
-        } else if (StringUtils.equals(server.loginUser().getUserName(), message.getFromUserName())) {
-            // 如果是管理员指令
+        if (!WxUtil.isGroupMessage(message)) {
             return;
         }
         
@@ -42,7 +39,7 @@ public class TextMessageHandler extends AbstractMessageHandler {
         
         RequestContext contex = createContext(message);
         
-        // 识别投注请求
+        // 识别投注请求sbs
         Command cmd = commander.resolveCommand(contex);
         if (cmd == null) {
             logger.debug("无法解析的消息[{}]", content);

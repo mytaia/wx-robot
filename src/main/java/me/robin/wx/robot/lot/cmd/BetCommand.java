@@ -11,15 +11,18 @@ import java.util.Map;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import com.alibaba.fastjson.JSON;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 
+import me.robin.wx.robot.frame.api.WxMessageSender;
 import me.robin.wx.robot.lot.compant.WebClinet;
+import me.robin.wx.robot.lot.core.BetRequest;
+import me.robin.wx.robot.lot.core.RequestContext;
 import me.robin.wx.robot.lot.entity.Bet;
-import me.robin.wx.robot.lot.model.BetRequest;
 import okhttp3.FormBody;
 import okhttp3.Request;
 import okhttp3.Response;
@@ -46,19 +49,24 @@ public class BetCommand implements Command {
     /** FIXME */
     private static final Logger logger = LoggerFactory.getLogger(BetCommand.class);
     
+    /** FIXME */
+    @Autowired
+    private WxMessageSender messageSender;
+    
     @Override
     public void execute(RequestContext context) {
-        BetRequest request = context.getBetRequest();
-        logger.info("投注指令的处理" + request);
+        BetRequest betRequest = (BetRequest) context.getMessageRequest();
+        logger.info("投注指令的处理" + betRequest);
         // 向网盘提交,要做一些处理
-        List<Bet> bets = request.getPlayed().extractBet(request);
+        List<Bet> bets = betRequest.getPlayed().extractBet(betRequest);
         String dataList = toJson(bets);
         
         Request req = new Request.Builder() //
             .url("http://localhost/rest/lot!lot.action") //
             .post(new FormBody.Builder() //
                 .add("dataList", dataList) //
-                .add("operId", context.getMessage().getFromUserName()).build() //
+                .add("operId", context.getMessage().getFromUserName())//
+                .build() //
             ).build();
             
         try {
@@ -67,9 +75,14 @@ public class BetCommand implements Command {
             WangPanRespon res = JSON.parseObject(json, WangPanRespon.class);
             if (res.code == 1) {
                 // 成功
-                logger.error("投注成功");
+                logger.info("投注成功");
+                String msg = String.format("@%s您的%s投注成功,账户余额为%s", context.getFromUserName(), betRequest.getPlayed().getName(), res.yuer);
+                messageSender.sendTextMessage(context.getMessage().getToUserName(), msg);
             } else {
                 logger.error("向网盘提交投注时失败 :{}", res.msg);
+                
+                String msg = String.format("@%s您的%s投注失败,原因是 ： %s", "0001", betRequest.getPlayed().getName(), res.msg);
+                messageSender.sendTextMessage(context.getMessage().getFromUserName(), msg);
             }
         } catch (IOException e) {
             // TODO Auto-generated catch block

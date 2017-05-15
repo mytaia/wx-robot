@@ -5,8 +5,8 @@ package me.robin.wx.robot.lot.cmd.resolver.service;
 import org.springframework.stereotype.Component;
 
 import me.robin.wx.robot.lot.cmd.Command;
-import me.robin.wx.robot.lot.cmd.RequestContext;
 import me.robin.wx.robot.lot.cmd.resolver.CommandResolver;
+import me.robin.wx.robot.lot.core.RequestContext;
 
 /**
  * 指令识别

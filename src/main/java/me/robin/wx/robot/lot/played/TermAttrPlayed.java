@@ -4,9 +4,9 @@ package me.robin.wx.robot.lot.played;
 
 import me.robin.wx.robot.lot.constant.GameResultEnum;
 import me.robin.wx.robot.lot.constant.TermAttrEnum;
+import me.robin.wx.robot.lot.core.TermResult;
 import me.robin.wx.robot.lot.entity.Bet;
 import me.robin.wx.robot.lot.entity.GamePlayed;
-import me.robin.wx.robot.lot.model.TermResult;
 
 /**
  * 全盘玩法

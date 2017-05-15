@@ -15,7 +15,7 @@ public interface WxMessageSender {
      * @param message x
      */
     default void sendTextMessage(String user, String message) {
-        sendTextMessage(user, message, WxConst.MessageType.TEXT);
+        sendMessage(user, message, WxConst.MessageType.TEXT);
     }
     
     /**
@@ -25,6 +25,6 @@ public interface WxMessageSender {
      * @param message x
      * @param type x
      */
-    void sendTextMessage(String user, String message, int type);
+    void sendMessage(String user, String message, int type);
     
 }

@@ -15,7 +15,7 @@ import me.robin.wx.robot.lot.constant.BallAttrEnum;
 import me.robin.wx.robot.lot.constant.EnumAware;
 import me.robin.wx.robot.lot.constant.GameEnum;
 import me.robin.wx.robot.lot.constant.TermAttrEnum;
-import me.robin.wx.robot.lot.model.BetRequest;
+import me.robin.wx.robot.lot.core.BetRequest;
 import me.robin.wx.robot.lot.played.Played;
 
 /**
@@ -156,7 +156,7 @@ public class K3BetResolver extends ComboBetResolver {
         @Override
         public void resolver(String input, BetRequest bet, Pattern regex, Matcher matcher) {
             String money = matcher.group("money");
-            bet.setMoney(new BigDecimal(money));
+            bet.setBetMoney(new BigDecimal(money));
             TermAttrEnum tremAttr = TermAttrEnum.fromDescription(matcher.group("termAttr"));
             Played played = playeds.getTermAttrPlayed(tremAttr);
             bet.setPlayed(played);
@@ -194,7 +194,7 @@ public class K3BetResolver extends ComboBetResolver {
         @Override
         public void resolver(String input, BetRequest bet, Pattern regex, Matcher matcher) {
             String money = matcher.group("money");
-            bet.setMoney(new BigDecimal(money));
+            bet.setBetMoney(new BigDecimal(money));
             String ballAttr = matcher.group("ballAttr");
             String ballIndex = matcher.group("ballIndex");
             
@@ -236,7 +236,7 @@ public class K3BetResolver extends ComboBetResolver {
         @Override
         public void resolver(String input, BetRequest bet, Pattern regex, Matcher matcher) {
             String money = matcher.group("money");
-            bet.setMoney(new BigDecimal(money));
+            bet.setBetMoney(new BigDecimal(money));
             String ballNum = matcher.group("ballNum");
             bet.setInfo(ballNum);
             Played played = playeds.getSanTongHao(ballNum);

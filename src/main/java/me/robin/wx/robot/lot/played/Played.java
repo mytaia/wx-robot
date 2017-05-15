@@ -4,11 +4,11 @@ package me.robin.wx.robot.lot.played;
 import java.util.Arrays;
 import java.util.List;
 
+import me.robin.wx.robot.lot.core.BetRequest;
+import me.robin.wx.robot.lot.core.BetResult;
+import me.robin.wx.robot.lot.core.TermResult;
 import me.robin.wx.robot.lot.entity.Bet;
 import me.robin.wx.robot.lot.entity.GamePlayed;
-import me.robin.wx.robot.lot.model.BetRequest;
-import me.robin.wx.robot.lot.model.BetResult;
-import me.robin.wx.robot.lot.model.TermResult;
 
 /**
  * 玩法
@@ -59,7 +59,7 @@ public abstract class Played {
     public List<Bet> extractBet(BetRequest request) {
         Bet bet = new Bet();
         bet.setPlayed(request.getPlayed());
-        bet.setBetMoney(request.getMoney());
+        bet.setBetMoney(request.getBetMoney());
         bet.setPlayedId(request.getPlayed().getPlayedId());
         return Arrays.asList(bet);
     }

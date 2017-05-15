@@ -6,7 +6,7 @@ import me.robin.wx.robot.frame.model.LoginUser;
 /**
  * Created by xuanlubin on 2017/4/24.
  */
-public interface WxApi extends WxMessageSender {
+public interface WxApi {
     
     LoginUser loginUser();
     
