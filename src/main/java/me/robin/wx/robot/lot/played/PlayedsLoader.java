@@ -35,10 +35,10 @@ import me.robin.wx.robot.lot.service.GamePlayedService;
  * @version 2017年5月11日 作者
  */
 @Component
-public class PlayedsLoad implements InitializingBean {
+public class PlayedsLoader implements InitializingBean {
     
     /** FIXME */
-    private static final Logger logger = LoggerFactory.getLogger(PlayedsLoad.class);
+    private static final Logger logger = LoggerFactory.getLogger(PlayedsLoader.class);
     
     /** FIXME */
     @Autowired

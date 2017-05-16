@@ -41,7 +41,10 @@ public class DefaultServerStatusListener implements ServerStatusListener {
     private TextMessageHandler textMessageHandler;
     
     /** FIXME */
-    private ExecutorService messageExecutorService = ExecutorServiceFactory.createExecutorService(50, "messageProcessThead");
+    private static final int MESSAGE_PROCESS_THREAD = 1;
+    
+    /** FIXME */
+    private ExecutorService messageExecutorService = ExecutorServiceFactory.createExecutorService(MESSAGE_PROCESS_THREAD, "messageProcessThead");
     
     /**
      * FIXME 方法注释信息(此标记由Eclipse自动生成,请填写注释信息删除此标记)
@@ -130,7 +133,7 @@ public class DefaultServerStatusListener implements ServerStatusListener {
     
     @Override
     public void onModContactList(JSONArray modContactList, WxApi api) {
-        
+        logger.info("{}", modContactList);
     }
     
     @Override

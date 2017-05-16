@@ -19,6 +19,8 @@ import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 
 import me.robin.wx.robot.frame.api.WxMessageSender;
+import me.robin.wx.robot.frame.model.WxUser;
+import me.robin.wx.robot.frame.service.ContactService;
 import me.robin.wx.robot.lot.compant.WebClinet;
 import me.robin.wx.robot.lot.core.BetRequest;
 import me.robin.wx.robot.lot.core.RequestContext;
@@ -53,6 +55,10 @@ public class BetCommand implements Command {
     @Autowired
     private WxMessageSender messageSender;
     
+    /** FIXME */
+    @Autowired
+    private ContactService contactService;
+    
     @Override
     public void execute(RequestContext context) {
         BetRequest betRequest = (BetRequest) context.getMessageRequest();
@@ -61,11 +67,17 @@ public class BetCommand implements Command {
         List<Bet> bets = betRequest.getPlayed().extractBet(betRequest);
         String dataList = toJson(bets);
         
+        WxUser user = contactService.queryUser(context.getMessage().getFromUserName());
+        String userName = null;
+        if (user != null) {
+            userName = user.getRemarkName();
+        }
+        
         Request req = new Request.Builder() //
             .url("http://localhost/rest/lot!lot.action") //
             .post(new FormBody.Builder() //
                 .add("dataList", dataList) //
-                .add("operId", context.getMessage().getFromUserName())//
+                .add("operId", userName)//
                 .build() //
             ).build();
             
@@ -77,7 +89,7 @@ public class BetCommand implements Command {
                 // 成功
                 logger.info("投注成功");
                 String msg = String.format("@%s您的%s投注成功,账户余额为%s", context.getFromUserName(), betRequest.getPlayed().getName(), res.yuer);
-                messageSender.sendTextMessage(context.getMessage().getToUserName(), msg);
+                messageSender.sendTextMessage(context.getMessage().getFromUserName(), msg);
             } else {
                 logger.error("向网盘提交投注时失败 :{}", res.msg);
                 

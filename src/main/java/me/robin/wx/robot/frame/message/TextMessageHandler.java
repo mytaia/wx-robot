@@ -6,10 +6,13 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import me.robin.wx.robot.frame.model.WxMsg;
+import me.robin.wx.robot.frame.model.WxUser;
+import me.robin.wx.robot.frame.service.ContactService;
 import me.robin.wx.robot.frame.util.WxUtil;
 import me.robin.wx.robot.lot.cmd.Command;
 import me.robin.wx.robot.lot.cmd.Commander;
 import me.robin.wx.robot.lot.core.RequestContext;
+import me.robin.wx.robot.lot.service.GroupService;
 
 /** 
  */
@@ -19,6 +22,14 @@ public class TextMessageHandler extends AbstractMessageHandler {
     /** FIXME */
     @Autowired
     private Commander commander;
+    
+    /** FIXME */
+    @Autowired
+    private GroupService groupService;
+    
+    /** FIXME */
+    @Autowired
+    private ContactService contactService;
     
     @Override
     public void handle(WxMsg message) {
@@ -32,6 +43,12 @@ public class TextMessageHandler extends AbstractMessageHandler {
         }
         
         String groupName = message.getFromUserName();
+        // 只处理受管的群组消息
+        WxUser user = contactService.queryUserByUserName(groupName);
+        if (user == null || groupService.getByNickName(user.getNickName()) == null) {
+            return;
+        }
+        
         if ("?".equals(content) || "？".equals(content)) {
             sendMessage(groupName, "这里是指令的说明:1/2/3表示xxx");
             return;

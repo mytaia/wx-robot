@@ -35,9 +35,8 @@
 
 	<bean id="hibernateJpaVendorAdapter"
 		class="org.springframework.orm.jpa.vendor.HibernateJpaVendorAdapter">
-		<property name="databasePlatform" value="org.hibernate.dialect.MySQL57InnoDBDialect">
-			 
-		</property>
+		<property name="databasePlatform" value="org.hibernate.dialect.MySQL5InnoDBDialect" />
+		<!-- <property name="databasePlatform" value="org.hibernate.dialect.MySQL57InnoDBDialect" />--> 
 	</bean>
 
 	<!-- Spring Data Jpa配置 -->
