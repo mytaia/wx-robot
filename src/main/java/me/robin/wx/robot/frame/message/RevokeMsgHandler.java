@@ -7,6 +7,7 @@ import java.util.Set;
 import org.apache.commons.lang3.StringUtils;
 
 import me.robin.wx.robot.frame.listener.MessageSendListener;
+import me.robin.wx.robot.frame.model.WxGroupMsg;
 import me.robin.wx.robot.frame.model.WxMsg;
 import me.robin.wx.robot.frame.model.WxUser;
 import me.robin.wx.robot.frame.service.ContactService;
@@ -57,11 +58,11 @@ public class RevokeMsgHandler implements MsgHandler {
         String messageContent;
         if (null != wxMsg) {
             String appendContent;
-            if (wxMsg.isGroupMsg()) {
-                WxUser sendUser = contactService.queryUserByUserName(wxMsg.getSendUserName());
+            if (wxMsg instanceof WxGroupMsg) {
+                WxUser sendUser = contactService.queryUserByUserName(((WxGroupMsg) wxMsg).getSender());
                 if (null != sendUser) {
                     messageContent = sendUser.getNickName() + " 撤销了这条消息:";
-                    appendContent = wxMsg.getSendContent();
+                    appendContent = wxMsg.getContent();
                 } else {
                     messageContent = "楼上撤销了这条消息:";
                     appendContent = wxMsg.getContent();

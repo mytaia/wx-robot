@@ -19,6 +19,7 @@ import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 
 import me.robin.wx.robot.frame.api.WxMessageSender;
+import me.robin.wx.robot.frame.model.WxGroupMsg;
 import me.robin.wx.robot.frame.model.WxUser;
 import me.robin.wx.robot.frame.service.ContactService;
 import me.robin.wx.robot.lot.compant.WebClinet;
@@ -66,8 +67,10 @@ public class BetCommand implements Command {
         // 向网盘提交,要做一些处理
         List<Bet> bets = betRequest.getPlayed().extractBet(betRequest);
         String dataList = toJson(bets);
-        
-        WxUser user = contactService.queryUser(context.getMessage().getFromUserName());
+        WxGroupMsg msg = (WxGroupMsg) context.getMessage();
+        String group = msg.getGroup();
+        String sender = msg.getSender();
+        WxUser user = contactService.queryUser(sender);
         String userName = null;
         if (user != null) {
             userName = user.getRemarkName();
@@ -85,20 +88,18 @@ public class BetCommand implements Command {
             Response response = WebClinet.instance.execute(req);
             String json = response.body().string();
             WangPanRespon res = JSON.parseObject(json, WangPanRespon.class);
+            String strMsg = null;
             if (res.code == 1) {
                 // 成功
                 logger.info("投注成功");
-                String msg = String.format("@%s您的%s投注成功,账户余额为%s", context.getFromUserName(), betRequest.getPlayed().getName(), res.yuer);
-                messageSender.sendTextMessage(context.getMessage().getFromUserName(), msg);
+                strMsg = String.format("@%s您的%s投注成功,账户余额为%s", group, betRequest.getPlayed().getName(), res.yuer);
             } else {
                 logger.error("向网盘提交投注时失败 :{}", res.msg);
-                
-                String msg = String.format("@%s您的%s投注失败,原因是 ： %s", "0001", betRequest.getPlayed().getName(), res.msg);
-                messageSender.sendTextMessage(context.getMessage().getFromUserName(), msg);
+                strMsg = String.format("@%s您的%s投注失败,原因是 ： %s", group, betRequest.getPlayed().getName(), res.msg);
             }
+            messageSender.sendTextMessage(sender, strMsg);
         } catch (IOException e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
+            logger.error("提交下注数据时异常", e);
         }
     }
     
@@ -128,14 +129,34 @@ public class BetCommand implements Command {
         return JSON.toJSONString(list);
     }
     
+    /**
+     * FIXME 类注释信息(此标记自动生成,注释填写完成后请删除)
+     * 
+     * <pre>
+     * [
+     * 调用关系:
+     * 实现接口及父类:
+     * 子类:
+     * 内部类列表:
+     * ]
+     * </pre>
+     * 
+     * @author 作者
+     * @since 1.0
+     * @version 2017年5月17日 作者
+     */
     static class WangPanRespon {
         
+        /** FIXME */
         public String msg;
         
+        /** FIXME */
         public BigDecimal totalsum;
         
+        /** FIXME */
         public String yuer;
         
+        /** FIXME */
         public int code;
     }
     

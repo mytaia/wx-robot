@@ -1,8 +1,7 @@
 
 package me.robin.wx.robot.frame.listener.impl;
 
-import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
+import java.util.List;
 import java.util.concurrent.ExecutorService;
 
 import javax.annotation.PostConstruct;
@@ -14,13 +13,13 @@ import org.springframework.stereotype.Component;
 
 import com.alibaba.fastjson.JSONArray;
 
-import me.robin.wx.robot.frame.WxConst;
 import me.robin.wx.robot.frame.api.WxApi;
 import me.robin.wx.robot.frame.exetor.ExecutorServiceFactory;
 import me.robin.wx.robot.frame.listener.ServerStatusListener;
+import me.robin.wx.robot.frame.message.GroupMessageHandler;
 import me.robin.wx.robot.frame.message.MsgChainHandler;
 import me.robin.wx.robot.frame.message.MsgHandler;
-import me.robin.wx.robot.frame.message.TextMessageHandler;
+import me.robin.wx.robot.frame.model.WxGroupMsg;
 import me.robin.wx.robot.frame.model.WxMsg;
 import me.robin.wx.robot.frame.util.WxUtil;
 
@@ -34,11 +33,11 @@ public class DefaultServerStatusListener implements ServerStatusListener {
     private static final Logger logger = LoggerFactory.getLogger(DefaultServerStatusListener.class);
     
     /** FIXME */
-    private Map<Integer, MsgChainHandler> handlerMap = new ConcurrentHashMap<>();
+    private MsgChainHandler chainHandler = new MsgChainHandler();
     
     /** FIXME */
     @Autowired
-    private TextMessageHandler textMessageHandler;
+    private GroupMessageHandler groupMessageHandler;
     
     /** FIXME */
     private static final int MESSAGE_PROCESS_THREAD = 1;
@@ -51,12 +50,12 @@ public class DefaultServerStatusListener implements ServerStatusListener {
      */
     @PostConstruct
     private void init() {
-        this.registerMessageHandler(WxConst.MessageType.TEXT, textMessageHandler);
+        this.registerMessageHandler(groupMessageHandler);
     }
     
     @Override
-    public void registerMessageHandler(int msgType, MsgHandler msgHandler) {
-        handlerMap.computeIfAbsent(msgType, s -> new MsgChainHandler()).addHandler(msgHandler);
+    public void registerMessageHandler(MsgHandler msgHandler) {
+        chainHandler.addHandler(msgHandler);
     }
     
     @Override
@@ -65,24 +64,18 @@ public class DefaultServerStatusListener implements ServerStatusListener {
     }
     
     @Override
-    public void onAddMsgList(JSONArray addMsgList, WxApi api) {
-        for (int i = 0; i < addMsgList.size(); i++) {
-            logger.info("收到新消息:{} ", addMsgList.getJSONObject(i));
-            WxMsg message = addMsgList.getObject(i, WxMsg.class);
-            String MsgId = message.getMsgID();
-            String FromUserName = message.getFromUserName();
-            String ToUserName = message.getToUserName();
-            message.setContent(WxUtil.revertXml(message.getContent()));
-            String Content = message.getContent();
-            int msgType = message.getMsgType();
-            logger.info("收到新消息:{} {} {} {} {}", MsgId, FromUserName, ToUserName, Content, msgType);
-            MsgHandler msgHandler = this.handlerMap.get(msgType);
-            if (null == msgHandler) {
-                logger.info("没有定义消息处理器 msgType:{}", msgType);
-                continue;
+    public void onAddMsgList(List<WxMsg> messages, WxApi api) {
+        for (WxMsg message : messages) {
+            
+            WxMsg msg = message;
+            if (WxUtil.isGroupMessage(message)) {
+                msg = WxGroupMsg.from(msg);
             }
             
-            messageExecutorService.submit(new MessageHandle(msgHandler, message));
+            message.setContent(WxUtil.revertXml(message.getContent()));
+            
+            logger.info("收到新消息:{} ", msg);
+            messageExecutorService.submit(new MessageHandle(chainHandler, message));
         }
     }
     

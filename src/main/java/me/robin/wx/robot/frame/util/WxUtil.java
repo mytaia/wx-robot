@@ -93,6 +93,16 @@ public class WxUtil {
     }
     
     /**
+     * 是否是群组
+     *
+     * @param userName x
+     * @return x
+     */
+    public static boolean isGroup(String userName) {
+        return StringUtils.startsWith(userName, "@@");
+    }
+    
+    /**
      * 是否是群组消息
      *
      * @param msg x

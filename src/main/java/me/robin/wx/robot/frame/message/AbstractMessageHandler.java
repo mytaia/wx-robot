@@ -6,6 +6,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import me.robin.wx.robot.frame.api.WxMessageSender;
+import me.robin.wx.robot.frame.model.WxMsg;
 import me.robin.wx.robot.frame.util.WxUtil;
 
 /** 
@@ -38,4 +39,17 @@ public abstract class AbstractMessageHandler implements MsgHandler {
     protected void sendAdminMessage(String user, String content) {
         sender.sendTextMessage(user, WxUtil.builddminMessage(content));
     }
+    
+    /**
+     * 是否可以处理此消息
+     * 
+     * @param msg x
+     * @param user x
+     * @param content x
+     * @return x
+     */
+    protected boolean canHand(WxMsg msg) {
+        return false;
+    }
+    
 }

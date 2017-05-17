@@ -1,8 +1,11 @@
 
 package me.robin.wx.robot.frame.service;
 
+import java.util.List;
+
 import com.alibaba.fastjson.JSONArray;
 
+import me.robin.wx.robot.frame.model.WxGroup;
 import me.robin.wx.robot.frame.model.WxUser;
 
 /**
@@ -56,5 +59,28 @@ public interface ContactService {
      * @return x
      */
     WxUser queryUser(String queryString);
+    
+    /**
+     * 根据ID获取组
+     *
+     * @param userName x
+     * @return x
+     */
+    WxGroup getWxGroup(String userName);
+    
+    /**
+     * 根据ID获取组
+     *
+     * @param userName x
+     * @return x
+     */
+    List<WxGroup> getAllWxGroup();
+    
+    /**
+     * 更新群组及群组成员
+     *
+     * @param users x
+     */
+    void updateGroup(List<WxGroup> users);
     
 }

@@ -18,7 +18,7 @@ package me.robin.wx.robot.frame.model.response;
  * @since 1.0
  * @version 2017年5月4日 作者
  */
-public class SendMessageResponse extends AbstractBaseResponse {
+public class SendMessageResponse extends BaseResponse {
     
     /** FIXME */
     public String MsgID;

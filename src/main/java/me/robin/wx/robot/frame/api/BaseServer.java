@@ -1,6 +1,7 @@
 
 package me.robin.wx.robot.frame.api;
 
+import java.io.File;
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.List;
@@ -9,6 +10,7 @@ import java.util.Optional;
 import java.util.Timer;
 import java.util.TimerTask;
 
+import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
@@ -28,6 +30,10 @@ import me.robin.wx.robot.frame.DelayTask;
 import me.robin.wx.robot.frame.WxConst;
 import me.robin.wx.robot.frame.listener.ServerStatusListener;
 import me.robin.wx.robot.frame.model.LoginUser;
+import me.robin.wx.robot.frame.model.WxMsg;
+import me.robin.wx.robot.frame.model.response.AbstractResponse;
+import me.robin.wx.robot.frame.model.response.GetBatchContactResponse;
+import me.robin.wx.robot.frame.model.response.GetContactResponse;
 import me.robin.wx.robot.frame.service.ContactService;
 import me.robin.wx.robot.frame.util.ResponseReadUtils;
 import me.robin.wx.robot.frame.util.WxUtil;
@@ -57,6 +63,7 @@ public abstract class BaseServer implements Runnable, WxApi {
     @Autowired
     protected WebClient webClient;
     
+    /** FIXME */
     @Autowired
     protected ContactService contactService;
     
@@ -123,17 +130,24 @@ public abstract class BaseServer implements Runnable, WxApi {
     /**
      * 获取通讯录
      */
-    private void getContact() {
+    public void getContact() {
         Request request = initRequestBuilder("/cgi-bin/mmwebwx-bin/webwxgetcontact", "lang", "zh_CN", "r", System.currentTimeMillis(), "seq", "0",
             "skey", user.getSkey()).build();
-        webClient.asynCall(request, new BaseJsonCallback() {
+        webClient.asynCall(request, new BeanCallback<GetContactResponse>(GetContactResponse.class) {
             
             @Override
-            void process(Call call, Response response, JSONObject content) {
+            void process(Call call, Response response, GetContactResponse bean) {
                 logger.info("获取到联系人列表");
                 syncCheck();
-                batchGetContact(Lists.newArrayList());
-                contactService.updateContact(content.getJSONArray("MemberList"));
+                // 提取到所有群ID
+                List<String> groupIds = Lists.newArrayList();
+                bean.MemberList.forEach(group -> {
+                    if (WxUtil.isGroup(group.getUserName())) {
+                        groupIds.add(group.getUserName());
+                    }
+                });
+                batchGetContact(groupIds);
+                contactService.updateGroup(bean.MemberList);
                 login = true;
                 synchronized (BaseServer.this.user) {
                     BaseServer.this.user.notifyAll();
@@ -147,7 +161,7 @@ public abstract class BaseServer implements Runnable, WxApi {
      * 
      * @param userNames x
      */
-    private void batchGetContact(List<String> userNames) {
+    public void batchGetContact(List<String> userNames) {
         if (CollectionUtils.isEmpty(userNames)) {
             return;
         }
@@ -169,24 +183,16 @@ public abstract class BaseServer implements Runnable, WxApi {
         requestBody.put("List", members);
         
         builder.post(WxUtil.createJsonRequest(requestBody));
-        webClient.asynCall(builder.build(), new BaseJsonCallback() {
+        webClient.asynCall(builder.build(), new BeanCallback<GetBatchContactResponse>(GetBatchContactResponse.class) {
             
             @Override
-            void process(Call call, Response response, JSONObject content) {
-                
-                Integer ret = TypeUtils.castToInt(JSONPath.eval(content, "BaseResponse.Ret"));
-                if (null == ret || 0 != ret.intValue()) {
-                    return;
-                }
-                
-                JSONArray memberList = content.getJSONArray("MemberList");
-                
-                if (null != memberList) {
-                    for (int i = 0, len = memberList.size(); i < len; i++) {
-                        
-                    }
+            void process(Call call, Response response, GetBatchContactResponse bean) {
+                logger.debug("从{}个群组中同步到{}个用户信息", bean.Count, bean.ContactList == null ? 0 : bean.ContactList.size());
+                if (!CollectionUtils.isEmpty(bean.ContactList)) {
+                    contactService.updateGroup(bean.ContactList);
                 }
             }
+            
         });
     }
     
@@ -262,7 +268,10 @@ public abstract class BaseServer implements Runnable, WxApi {
                         user.setSkey(skey);
                     }
                     if (null != statusListener) {
-                        statusListener.onAddMsgList(syncRsp.getJSONArray("AddMsgList"), BaseServer.this);
+                        List<WxMsg> list = JSON.parseArray(syncRsp.getString("AddMsgList"), WxMsg.class);
+                        if (!CollectionUtils.isEmpty(list)) {
+                            statusListener.onAddMsgList(list, BaseServer.this);
+                        }
                         statusListener.onDelContactList(syncRsp.getJSONArray("ModContactList"), BaseServer.this);
                         statusListener.onModChatRoomMemberList(syncRsp.getJSONArray("DelContactList"), BaseServer.this);
                         statusListener.onModContactList(syncRsp.getJSONArray("ModChatRoomMemberList"), BaseServer.this);
@@ -535,5 +544,73 @@ public abstract class BaseServer implements Runnable, WxApi {
         }
         
         abstract void process(Call call, Response response, JSONObject content);
+    }
+    
+    /**
+     * FIXME 类注释信息(此标记自动生成,注释填写完成后请删除)
+     * 
+     * <pre>
+     * [
+     * 调用关系:
+     * 实现接口及父类:
+     * 子类:
+     * 内部类列表:
+     * ]
+     * </pre>
+     * 
+     * @author 作者
+     * @since 1.0
+     * @version 2017年5月17日 作者
+     * @param <T> x
+     */
+    public abstract class BeanCallback<T extends AbstractResponse> implements Callback {
+        
+        /** FIXME */
+        private Class<T> clazz;
+        
+        /**
+         * 构造函数
+         * 
+         * @param clazz x
+         */
+        public BeanCallback(Class<T> clazz) {
+            this.clazz = clazz;
+        }
+        
+        @Override
+        public void onFailure(Call call, IOException e) {
+            logger.error("{}", call.request().url().toString(), e);
+            reCall(call, this);
+        }
+        
+        @Override
+        public void onResponse(Call call, Response response) throws IOException {
+            try {
+                String content = ResponseReadUtils.read(response);
+                if (logger.isInfoEnabled()) {
+                    String file = call.request().url().encodedPath().toString()
+                        .substring(call.request().url().encodedPath().toString().lastIndexOf("/"));
+                    FileUtils.write(new File("e:\\potol\\" + file + ".txt"), content, "utf-8");
+                    logger.info("请求{}的结果:{}", call, content);
+                }
+                T bean = JSON.parseObject(content, clazz);
+                if (!bean.isSuccess()) {
+                    logger.error("请求{}时返回了不正确的结果", call);
+                    return;
+                }
+                this.process(call, response, bean);
+            } finally {
+                IOUtils.closeQuietly(response);
+            }
+        }
+        
+        /**
+         * FIXME 方法注释信息(此标记由Eclipse自动生成,请填写注释信息删除此标记)
+         *
+         * @param call x
+         * @param response x
+         * @param bean x
+         */
+        abstract void process(Call call, Response response, T bean);
     }
 }
