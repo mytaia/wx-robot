@@ -40,7 +40,7 @@ public class DefaultServerStatusListener implements ServerStatusListener {
     private GroupMessageHandler groupMessageHandler;
     
     /** FIXME */
-    private static final int MESSAGE_PROCESS_THREAD = 1;
+    private static final int MESSAGE_PROCESS_THREAD = 5;
     
     /** FIXME */
     private ExecutorService messageExecutorService = ExecutorServiceFactory.createExecutorService(MESSAGE_PROCESS_THREAD, "messageProcessThead");
@@ -72,10 +72,10 @@ public class DefaultServerStatusListener implements ServerStatusListener {
                 msg = WxGroupMsg.from(msg);
             }
             
-            message.setContent(WxUtil.revertXml(message.getContent()));
+            msg.setContent(WxUtil.revertXml(msg.getContent()));
             
             logger.info("收到新消息:{} ", msg);
-            messageExecutorService.submit(new MessageHandle(chainHandler, message));
+            messageExecutorService.submit(new MessageHandle(chainHandler, msg));
         }
     }
     

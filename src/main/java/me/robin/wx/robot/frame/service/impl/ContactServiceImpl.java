@@ -3,7 +3,6 @@ package me.robin.wx.robot.frame.service.impl;
 
 import java.util.List;
 import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
 
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
@@ -28,13 +27,14 @@ import me.robin.wx.robot.frame.util.WxUtil;
 @Component
 public class ContactServiceImpl implements ContactService {
     
+    /** FIXME */
     private static final Logger logger = LoggerFactory.getLogger(ContactServiceImpl.class);
     
     /** FIXME */
-    private Map<String, String> keysMap = Maps.newConcurrentMap();
+    private Map<String, String> keysUser = Maps.newConcurrentMap();
     
     /** FIXME */
-    private Map<String, WxUser> userNameMap = new ConcurrentHashMap<>();
+    private Map<String, WxUser> userNameUserMap = Maps.newConcurrentMap();
     
     /** FIXME */
     /** FIXME */
@@ -48,6 +48,7 @@ public class ContactServiceImpl implements ContactService {
             if (StringUtils.startsWith(userName, "@@")) {
                 WxGroup wxGroup = item.toJavaObject(WxGroup.class);
                 addWxGroup(wxGroup);
+                addWxUser(wxGroup);
             } else if (StringUtils.startsWith(userName, "@")) {
                 WxUser wxUser = item.toJavaObject(WxUser.class);
                 addWxUser(wxUser);
@@ -63,6 +64,7 @@ public class ContactServiceImpl implements ContactService {
             String userName = group.getUserName();
             if (WxUtil.isGroup(userName)) {
                 addWxGroup(group);
+                addWxUser(group);
             } else if (StringUtils.startsWith(userName, "@")) {
                 addWxUser(group);
             } else if (!WxConst.FILTER_USERS.contains(userName)) {
@@ -112,21 +114,63 @@ public class ContactServiceImpl implements ContactService {
      * @param wxUser x
      */
     private void addWxUser(WxUser wxUser) {
-        keysMap.put(getKey("alias", wxUser.getAlias()), wxUser.getUserName());
-        keysMap.put(getKey("remark", wxUser.getRemarkName()), wxUser.getUserName());
-        keysMap.put(getKey("nickName", wxUser.getNickName()), wxUser.getUserName());
-        updateWxUser(userNameMap, wxUser.getUserName(), wxUser);
+        saveUser(NameKey.Alias, wxUser);
+        saveUser(NameKey.NickName, wxUser);
+        saveUser(NameKey.RemarkName, wxUser);
+        updateWxUser(wxUser);
     }
     
     /**
      * FIXME 方法注释信息(此标记由Eclipse自动生成,请填写注释信息删除此标记)
      *
-     * @param pre x
-     * @param key x
+     * @param nameKey x
+     * @param user x
+     */
+    private void saveUser(NameKey nameKey, WxUser user) {
+        String key = getKey(nameKey, user);
+        if (key == null) {
+            return;
+        }
+        keysUser.forEach((k, v) -> {
+            if (StringUtils.equals(v, user.getUserName()) && k.startsWith(nameKey.name()) && !StringUtils.equals(k, key)) {
+                keysUser.remove(k);
+                keysUser.put(key, user.getUserName());
+            }
+            
+        });
+    }
+    
+    /**
+     * FIXME 方法注释信息(此标记由Eclipse自动生成,请填写注释信息删除此标记)
+     *
+     * @param nameKey x
+     * @param user x
      * @return x
      */
-    private String getKey(String pre, String key) {
-        return pre + ":\u2005\u2009\u2090:" + key;
+    private String getKey(NameKey nameKey, WxUser user) {
+        String name = null;
+        switch (nameKey) {
+            case Alias:
+                name = user.getAlias();
+                break;
+            case UserName:
+                name = user.getUserName();
+                break;
+            case NickName:
+                name = user.getNickName();
+                break;
+            case RemarkName:
+                name = user.getRemarkName();
+                break;
+            
+            default:
+                break;
+        }
+        if (StringUtils.isEmpty(name)) {
+            return null;
+        }
+        
+        return nameKey.name() + ":\u2005\u2009\u2090:" + name;
     }
     
     /**
@@ -136,61 +180,58 @@ public class ContactServiceImpl implements ContactService {
      * @param key x
      * @param wxUser x
      */
-    private void updateWxUser(Map<String, WxUser> map, String key, WxUser wxUser) {
-        if (StringUtils.isEmpty(key)) {
+    private void updateWxUser(WxUser wxUser) {
+        WxUser old = userNameUserMap.putIfAbsent(wxUser.getUserName(), wxUser);
+        if (old == null) {
             return;
         }
         
-        WxUser old = map.get(key);
-        if (old == null) {
-            map.put(key, wxUser);
-            return;
+        if (!StringUtils.equals(old.getRemarkName(), wxUser.getRemarkName()) && !StringUtils.isEmpty(wxUser.getRemarkName())) {
+            old.setRemarkName(wxUser.getRemarkName());
+        } else if (!StringUtils.equals(old.getNickName(), wxUser.getNickName()) && !StringUtils.isEmpty(wxUser.getNickName())) {
+            old.setNickName(wxUser.getNickName());
+        } else if (!StringUtils.equals(old.getDisplayName(), wxUser.getDisplayName()) && !StringUtils.isEmpty(wxUser.getDisplayName())) {
+            old.setDisplayName(wxUser.getDisplayName());
+        } else if (!StringUtils.equals(old.getAlias(), wxUser.getAlias()) && !StringUtils.isEmpty(wxUser.getAlias())) {
+            old.setAlias(wxUser.getAlias());
         }
-        if (StringUtils.equals(old.getUserName(), wxUser.getUserName())) {
-            if (!StringUtils.isEmpty(wxUser.getRemarkName())) {
-                old.setRemarkName(wxUser.getRemarkName());
-            } else if (!StringUtils.isEmpty(wxUser.getNickName())) {
-                old.setNickName(wxUser.getNickName());
-            } else if (!StringUtils.isEmpty(wxUser.getDisplayName())) {
-                old.setDisplayName(wxUser.getDisplayName());
-            } else if (!StringUtils.isEmpty(wxUser.getAlias())) {
-                old.setAlias(wxUser.getAlias());
-            }
-        }
+        
     }
     
     /**
      * FIXME 方法注释信息(此标记由Eclipse自动生成,请填写注释信息删除此标记)
-     *
+     * 
+     * @param nameKey x
      * @param key x
      * @return x
      */
-    private WxUser queryUserByKey(String key) {
-        if (StringUtils.isNotEmpty(key)) {
-            return userNameMap.get(key);
+    private WxUser queryUserByKey(NameKey nameKey, String key) {
+        String nk = nameKey.name() + ":\u2005\u2009\u2090:" + key;
+        if (StringUtils.isNotEmpty(nk)) {
+            return userNameUserMap.get(key);
         }
         return null;
     }
     
     @Override
     public WxUser queryUserByAlias(String alias) {
-        return queryUserByKey(keysMap.get(getKey("alias", alias)));
+        return queryUserByKey(NameKey.Alias, alias);
         
     }
     
     @Override
     public WxUser queryUserByRemark(String remark) {
-        return queryUserByKey(keysMap.get(getKey("remark", remark)));
+        return queryUserByKey(NameKey.RemarkName, remark);
     }
     
     @Override
     public WxUser queryUserByNickName(String nickName) {
-        return queryUserByKey(keysMap.get(getKey("nickName", nickName)));
+        return queryUserByKey(NameKey.NickName, nickName);
     }
     
     @Override
     public WxUser queryUserByUserName(String userName) {
-        return userNameMap.get(userName);
+        return userNameUserMap.get(userName);
     }
     
     @Override
@@ -215,5 +256,32 @@ public class ContactServiceImpl implements ContactService {
     @Override
     public List<WxGroup> getAllWxGroup() {
         return Lists.newArrayList(groupNameMap.values());
+    }
+    
+    /**
+     * FIXME 类注释信息(此标记自动生成,注释填写完成后请删除)
+     * 
+     * <pre>
+     * [
+     * 调用关系:
+     * 实现接口及父类:
+     * 子类:
+     * 内部类列表:
+     * ]
+     * </pre>
+     * 
+     * @author 作者
+     * @since 1.0
+     * @version 2017年5月17日 作者
+     */
+    enum NameKey {
+        /** FIXME */
+        Alias,
+        /** FIXME */
+        NickName,
+        /** FIXME */
+        UserName,
+        /** FIXME */
+        RemarkName
     }
 }

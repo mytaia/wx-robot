@@ -92,12 +92,12 @@ public class BetCommand implements Command {
             if (res.code == 1) {
                 // 成功
                 logger.info("投注成功");
-                strMsg = String.format("@%s您的%s投注成功,账户余额为%s", group, betRequest.getPlayed().getName(), res.yuer);
+                strMsg = String.format("@%s您的%s投注成功,账户余额为%s", userName, betRequest.getPlayed().getName(), res.yuer);
             } else {
                 logger.error("向网盘提交投注时失败 :{}", res.msg);
-                strMsg = String.format("@%s您的%s投注失败,原因是 ： %s", group, betRequest.getPlayed().getName(), res.msg);
+                strMsg = String.format("@%s您的%s投注失败,原因是 ： %s", userName, betRequest.getPlayed().getName(), res.msg);
             }
-            messageSender.sendTextMessage(sender, strMsg);
+            messageSender.sendTextMessage(group, strMsg);
         } catch (IOException e) {
             logger.error("提交下注数据时异常", e);
         }
@@ -123,6 +123,7 @@ public class BetCommand implements Command {
             Map<String, String> map = Maps.newHashMap();
             map.put("lotTypeId", bet.getPlayedId().replace(":", "_") + "_a");
             map.put("betMoney", bet.getBetMoney().toPlainString());
+            map.put("ball", bet.getBall());
             list.add(map);
         }
         

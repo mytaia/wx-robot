@@ -95,7 +95,7 @@ public class BallUtils {
         for (int i = start, end = arr.length - count + 1; i < end; i++) {
             nums.push(arr[i]);
             if (count == 1) {
-                list.add((String[]) nums.toArray());
+                list.add(nums.toArray(new String[nums.size()]));
             } else {
                 comboSelect(arr, nums, i + 1, count - 1, list);
             }

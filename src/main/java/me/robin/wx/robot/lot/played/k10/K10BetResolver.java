@@ -8,9 +8,10 @@ import java.util.HashSet;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import org.assertj.core.util.Sets;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
+
+import com.google.common.collect.Sets;
 
 import me.robin.wx.robot.lot.cmd.resolver.CommandResolverException;
 import me.robin.wx.robot.lot.cmd.resolver.bet.ComboBetResolver;

@@ -5,6 +5,7 @@ import java.util.function.Consumer;
 
 import org.apache.commons.lang3.RandomStringUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.springframework.web.util.HtmlUtils;
 
 import com.alibaba.fastjson.JSON;
 
@@ -76,10 +77,11 @@ public class WxUtil {
     }
     
     public static String revertXml(String content) {
-        String str = StringUtils.trim(content);
-        str = StringUtils.substringAfterLast(str, "<br/>");
-        str = StringUtils.replace(str, "&lt;", "<");
-        return StringUtils.replace(str, "&gt;", ">");
+        // String str = HtmlEscapers.htmlEscaper().escape(content) StringUtils.trim(content);
+        
+        return HtmlUtils.htmlUnescape(content);
+        // str = StringUtils.replace(str, "&lt;", "<");
+        // return StringUtils.replace(str, "&gt;", ">");
     }
     
     /**
