@@ -91,7 +91,7 @@ public class WxUtil {
      * @return x
      */
     public static boolean isGroupMessage(WxMsg msg) {
-        return msg != null && msg.getFromUserName() != null && msg.getFromUserName().startsWith("@@");
+        return msg != null && (StringUtils.startsWith(msg.getFromUserName(), "@@") || StringUtils.startsWith(msg.getToUserName(), "@@"));
     }
     
     /**

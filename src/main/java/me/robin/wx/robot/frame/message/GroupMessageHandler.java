@@ -48,6 +48,8 @@ public class GroupMessageHandler extends AbstractMessageHandler {
             return;
         }
         
+        // 这里如果找不到对应的用户账户，应直接返回，待添加
+        
         if ("?".equals(content) || "？".equals(content)) {
             sendMessage(groupName, "这里是指令的说明:1/2/3表示xxx");
             return;

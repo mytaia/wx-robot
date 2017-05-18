@@ -76,6 +76,11 @@ public class BetCommand implements Command {
             userName = user.getRemarkName();
         }
         
+        if (userName == null) {
+            logger.warn("用户{}没有设置对应的账号，投注[{}]被忽略", user.getNickName(), betRequest.getInput());
+            return;
+        }
+        
         Request req = new Request.Builder() //
             .url("http://localhost/rest/lot!lot.action") //
             .post(new FormBody.Builder() //
