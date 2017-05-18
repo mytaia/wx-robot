@@ -20,10 +20,10 @@ import me.robin.wx.robot.lot.constant.BallComboEnum;
 import me.robin.wx.robot.lot.constant.GameEnum;
 import me.robin.wx.robot.lot.constant.TermAttrEnum;
 import me.robin.wx.robot.lot.entity.GamePlayed;
-import me.robin.wx.robot.lot.played.factory.BallAttrPlayedFactory;
-import me.robin.wx.robot.lot.played.factory.BallComboPlayedFactory;
-import me.robin.wx.robot.lot.played.factory.BallNumPlayedFactory;
-import me.robin.wx.robot.lot.played.factory.TermAttrPlayedFactory;
+import me.robin.wx.robot.lot.played.BallAttrPlayed;
+import me.robin.wx.robot.lot.played.BallComboPlayed;
+import me.robin.wx.robot.lot.played.BallIndexNumPlayed;
+import me.robin.wx.robot.lot.played.TermAttrPlayed;
 import me.robin.wx.robot.lot.service.GamePlayedService;
 
 /**
@@ -62,7 +62,7 @@ public class CreateK10Playeds {
             played.setGame(GameEnum.K10.code());
             played.setCode(item.code());
             played.setName(item.description());
-            played.setPlayedClass(BallComboPlayedFactory.class.getName());
+            played.setPlayedClass(BallComboPlayed.class.getName());
             played.setPlayedId(BallUtils.playedId(played.getGame(), played.getCode()));
             list.add(played);
         }
@@ -83,7 +83,7 @@ public class CreateK10Playeds {
             played.setGame(GameEnum.K10.code());
             played.setCode(item.code());
             played.setName(item.description());
-            played.setPlayedClass(TermAttrPlayedFactory.class.getName());
+            played.setPlayedClass(TermAttrPlayed.class.getName());
             played.setPlayedId(BallUtils.playedId(played.getGame(), played.getCode()));
             list.add(played);
         }
@@ -106,7 +106,7 @@ public class CreateK10Playeds {
                 played.setCode("b" + (i) + "_" + item.code());
                 played.setBallIndex(i);
                 played.setName(BallUtils.ballIndexString(i) + item.description());
-                played.setPlayedClass(BallAttrPlayedFactory.class.getName());
+                played.setPlayedClass(BallAttrPlayed.class.getName());
                 played.setPlayedId(BallUtils.playedId(played.getGame(), played.getCode()));
                 list.add(played);
             }
@@ -130,7 +130,7 @@ public class CreateK10Playeds {
                 played.setCode("b" + (i) + "_" + n);
                 played.setBallIndex(i);
                 played.setName(BallUtils.ballIndexString(i) + BallUtils.ballNum(n, 2));
-                played.setPlayedClass(BallNumPlayedFactory.class.getName());
+                played.setPlayedClass(BallIndexNumPlayed.class.getName());
                 played.setPlayedId(BallUtils.playedId(played.getGame(), played.getCode()));
                 list.add(played);
             }

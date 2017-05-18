@@ -18,11 +18,11 @@ import com.alibaba.fastjson.JSON;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 
+import me.robin.wx.robot.compant.WebClient;
 import me.robin.wx.robot.frame.api.WxMessageSender;
 import me.robin.wx.robot.frame.model.WxGroupMsg;
 import me.robin.wx.robot.frame.model.WxUser;
 import me.robin.wx.robot.frame.service.ContactService;
-import me.robin.wx.robot.lot.compant.WebClinet;
 import me.robin.wx.robot.lot.core.BetRequest;
 import me.robin.wx.robot.lot.core.RequestContext;
 import me.robin.wx.robot.lot.entity.Bet;
@@ -85,7 +85,7 @@ public class BetCommand implements Command {
             ).build();
             
         try {
-            Response response = WebClinet.instance.execute(req);
+            Response response = WebClient.instance.execute(req);
             String json = response.body().string();
             WangPanRespon res = JSON.parseObject(json, WangPanRespon.class);
             String strMsg = null;

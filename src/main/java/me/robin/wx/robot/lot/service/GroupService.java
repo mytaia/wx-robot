@@ -2,16 +2,15 @@
 package me.robin.wx.robot.lot.service;
 
 import java.util.List;
-import java.util.concurrent.Callable;
-import java.util.concurrent.ExecutionException;
+import java.util.Map;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.util.CollectionUtils;
 
-import com.google.common.cache.Cache;
-import com.google.common.cache.CacheBuilder;
+import com.google.common.collect.Maps;
 
 import me.robin.wx.robot.lot.entity.Group;
 import me.robin.wx.robot.lot.repository.GroupDao;
@@ -45,7 +44,7 @@ public class GroupService {
     private GroupDao groupDao;
     
     /** FIXME */
-    private Cache<String, Group> cache = CacheBuilder.newBuilder().build();
+    private Map<String, Group> cache = Maps.newConcurrentMap();
     
     /**
      * FIXME 方法注释信息(此标记由Eclipse自动生成,请填写注释信息删除此标记)
@@ -54,19 +53,14 @@ public class GroupService {
      * @return x
      */
     public Group getByNickName(String groupNickName) {
-        try {
-            return cache.get(groupNickName, new Callable<Group>() {
-                
-                @Override
-                public Group call() throws Exception {
-                    return findByNickName(groupNickName);
-                }
-                
-            });
-        } catch (ExecutionException e) {
-            logger.error("读取群组管理时异常", e);
+        if (CollectionUtils.isEmpty(cache)) {
+            List<Group> groups = findAll();
+            for (Group group : groups) {
+                cache.put(group.getNickName(), group);
+            }
         }
-        return null;
+        
+        return cache.get(groupNickName);
     }
     
     /**

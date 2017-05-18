@@ -20,9 +20,9 @@ import me.robin.wx.robot.lot.constant.BallAttrEnum;
 import me.robin.wx.robot.lot.constant.GameEnum;
 import me.robin.wx.robot.lot.constant.TermAttrEnum;
 import me.robin.wx.robot.lot.entity.GamePlayed;
-import me.robin.wx.robot.lot.played.factory.BallAttrPlayedFactory;
-import me.robin.wx.robot.lot.played.factory.BallNumMatchPlayedFactory;
-import me.robin.wx.robot.lot.played.factory.TermAttrPlayedFactory;
+import me.robin.wx.robot.lot.played.BallAttrPlayed;
+import me.robin.wx.robot.lot.played.BallNumMatchPlayed;
+import me.robin.wx.robot.lot.played.TermAttrPlayed;
 import me.robin.wx.robot.lot.played.k3.K3PlayedEnum;
 import me.robin.wx.robot.lot.service.GamePlayedService;
 
@@ -90,7 +90,7 @@ public class CreateK3Playeds {
             played.setGame(GameEnum.K3.code());
             played.setCode(item.code());
             played.setName(item.description());
-            played.setPlayedClass(TermAttrPlayedFactory.class.getName());
+            played.setPlayedClass(TermAttrPlayed.class.getName());
             played.setPlayedId(BallUtils.playedId(played.getGame(), played.getCode()));
             list.add(played);
         }
@@ -113,7 +113,7 @@ public class CreateK3Playeds {
                 played.setCode("b" + (i) + "_" + item.code());
                 played.setBallIndex(i);
                 played.setName(BallUtils.ballIndexString(i) + item.description());
-                played.setPlayedClass(BallAttrPlayedFactory.class.getName());
+                played.setPlayedClass(BallAttrPlayed.class.getName());
                 played.setPlayedId(BallUtils.playedId(played.getGame(), played.getCode()));
                 list.add(played);
             }
@@ -137,7 +137,7 @@ public class CreateK3Playeds {
             played.setBallNum(num);
             played.setCode(K3PlayedEnum.SanTongHaoDanXuan.code() + "_" + num);
             played.setName(K3PlayedEnum.SanTongHaoDanXuan.description() + num);
-            played.setPlayedClass(BallNumMatchPlayedFactory.class.getName());
+            played.setPlayedClass(BallNumMatchPlayed.class.getName());
             played.setPlayedId(BallUtils.playedId(played.getGame(), played.getCode()));
             list.add(played);
             

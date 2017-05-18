@@ -5,6 +5,7 @@ package me.robin.wx.robot.lot.played;
 import java.util.List;
 import java.util.Map;
 
+import org.apache.commons.lang3.reflect.ConstructorUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.InitializingBean;
@@ -15,7 +16,6 @@ import org.springframework.stereotype.Component;
 import com.google.common.collect.Maps;
 
 import me.robin.wx.robot.lot.entity.GamePlayed;
-import me.robin.wx.robot.lot.played.factory.PlayedFactory;
 import me.robin.wx.robot.lot.service.GamePlayedService;
 
 /**
@@ -63,9 +63,8 @@ public class PlayedsLoader implements InitializingBean {
         try {
             for (GamePlayed gp : playedsList) {
                 Class<?> clazz = Class.forName(gp.getPlayedClass());
-                if (PlayedFactory.class.isAssignableFrom(clazz)) {
-                    PlayedFactory factory = (PlayedFactory) applicationContext.getBean(clazz);
-                    Played played = factory.load(gp);
+                if (Played.class.isAssignableFrom(clazz)) {
+                    Played played = (Played) ConstructorUtils.invokeConstructor(clazz, gp);
                     Playeds playeds = map.get(gp.getGame());
                     if (playeds != null) {
                         playeds.addPlayed(played);
@@ -78,7 +77,7 @@ public class PlayedsLoader implements InitializingBean {
             for (Playeds playeds : map.values()) {
                 logger.info("游戏{}共加载到{}种玩法", playeds.getGame(), playeds.getAll().size());
             }
-        } catch (ClassNotFoundException e) {
+        } catch (ReflectiveOperationException e) {
             throw new RuntimeException("玩法加载失败", e);
         }
     }

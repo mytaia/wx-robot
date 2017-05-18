@@ -7,6 +7,8 @@ import java.util.List;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.google.common.collect.Lists;
+
 import me.robin.wx.robot.frame.model.WxMsg;
 
 /**
@@ -18,7 +20,7 @@ public class MsgChainHandler implements MsgHandler {
     private static Logger logger = LoggerFactory.getLogger(MsgChainHandler.class);
     
     /** FIXME */
-    private List<MsgHandler> msgHandlers = new ArrayList<>();
+    private List<MsgHandler> msgHandlers = Lists.newCopyOnWriteArrayList();
     
     @Override
     public void handle(WxMsg message) {

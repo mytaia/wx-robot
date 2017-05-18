@@ -13,6 +13,7 @@ import org.springframework.stereotype.Component;
 
 import com.alibaba.fastjson.JSONArray;
 
+import me.robin.wx.robot.compant.InfoNotifier;
 import me.robin.wx.robot.frame.api.WxApi;
 import me.robin.wx.robot.frame.exetor.ExecutorServiceFactory;
 import me.robin.wx.robot.frame.listener.ServerStatusListener;
@@ -39,6 +40,9 @@ public class DefaultServerStatusListener implements ServerStatusListener {
     @Autowired
     private GroupMessageHandler groupMessageHandler;
     
+    @Autowired
+    private InfoNotifier InfoNotifier;
+    
     /** FIXME */
     private static final int MESSAGE_PROCESS_THREAD = 5;
     
@@ -61,6 +65,7 @@ public class DefaultServerStatusListener implements ServerStatusListener {
     @Override
     public void onUUIDSuccess(String url) {
         logger.info("登录二维码:{}", url);
+        InfoNotifier.notify("登录二维码:" + url);
     }
     
     @Override
@@ -119,7 +124,11 @@ public class DefaultServerStatusListener implements ServerStatusListener {
          */
         @Override
         public void run() {
-            msgHandler.handle(message);
+            try {
+                msgHandler.handle(message);
+            } catch (Throwable e) {
+                logger.error("消息处理时异常", e);
+            }
         }
         
     }
