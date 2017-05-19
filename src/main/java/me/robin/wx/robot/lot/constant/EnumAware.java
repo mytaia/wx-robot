@@ -25,12 +25,13 @@ public interface EnumAware {
      *
      * @return x
      */
-    public String code();
+    String code();
     
     /**
      * FIXME 方法注释信息(此标记由Eclipse自动生成,请填写注释信息删除此标记)
      *
      * @return x
      */
-    public String description();
+    String description();
+    
 }

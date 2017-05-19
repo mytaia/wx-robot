@@ -2,17 +2,16 @@
  * create by 2017年5月14日
  ******************************************************************************/
 
-package me.robin.wx.robot.lot.cmd.resolver.bet;
+package me.robin.wx.robot.lot.cmd.resolver.service;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import me.robin.wx.robot.lot.cmd.Command;
 import me.robin.wx.robot.lot.cmd.resolver.CommandResolver;
-import me.robin.wx.robot.lot.core.BetRequest;
+import me.robin.wx.robot.lot.constant.ServicCommandeEnum;
 import me.robin.wx.robot.lot.core.RequestContext;
-import me.robin.wx.robot.lot.played.k10.K10BetResolver;
-import me.robin.wx.robot.lot.played.k3.K3BetResolver;
+import me.robin.wx.robot.lot.core.ServiceRequest;
 
 /**
  * FIXME 类注释信息(此标记自动生成,注释填写完成后请删除)
@@ -31,26 +30,11 @@ import me.robin.wx.robot.lot.played.k3.K3BetResolver;
  * @version 2017年5月14日 作者
  */
 @Component
-public class BetCommandResolver implements CommandResolver {
-    
-    /** FIXME */
-    private ComboBetResolver betResolver;
+public class ServiceCommandResolver implements CommandResolver {
     
     /** FIXME */
     @Autowired
-    private BetCommand betCommand;
-    
-    /**
-     * 构造函数
-     * 
-     * @param k3BetResolver x
-     * @param k10betResolver x
-     */
-    public BetCommandResolver(@Autowired K3BetResolver k3BetResolver, @Autowired K10BetResolver k10betResolver) {
-        betResolver = new ComboBetResolver();
-        betResolver.addResolver(k10betResolver);
-        betResolver.addResolver(k3BetResolver);
-    }
+    private ServiceCommand serviceCommand;
     
     /**
      * FIXME 方法注释信息(此标记由Eclipse自动生成,请填写注释信息删除此标记)
@@ -61,12 +45,14 @@ public class BetCommandResolver implements CommandResolver {
     @Override
     public Command resolveCommand(RequestContext context) {
         String input = context.getInput();
-        BetRequest request = betResolver.resolver(input);
-        if (request == null) {
+        ServicCommandeEnum sce = ServicCommandeEnum.fromDescription(input);
+        if (sce == null) {
             return null;
         }
+        ServiceRequest request = new ServiceRequest();
+        request.setServicCommandeEnum(sce);
         context.setMessageRequest(request);
-        return betCommand;
+        return serviceCommand;
     }
     
 }

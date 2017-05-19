@@ -2,33 +2,32 @@
  * create by 2017年5月14日
  ******************************************************************************/
 
-package me.robin.wx.robot.lot.cmd;
+package me.robin.wx.robot.lot.cmd.resolver.bet;
 
 import java.io.IOException;
-import java.math.BigDecimal;
 import java.util.List;
 import java.util.Map;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
 import com.alibaba.fastjson.JSON;
+import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 
-import me.robin.wx.robot.compant.WebClient;
 import me.robin.wx.robot.frame.api.WxMessageSender;
 import me.robin.wx.robot.frame.model.WxGroupMsg;
 import me.robin.wx.robot.frame.model.WxUser;
 import me.robin.wx.robot.frame.service.ContactService;
+import me.robin.wx.robot.lot.cmd.Command;
+import me.robin.wx.robot.lot.cmd.WangPanCommandSupport;
 import me.robin.wx.robot.lot.core.BetRequest;
 import me.robin.wx.robot.lot.core.RequestContext;
 import me.robin.wx.robot.lot.entity.Bet;
-import okhttp3.FormBody;
-import okhttp3.Request;
-import okhttp3.Response;
 
 /**
  * 下注的指令处理器
@@ -47,7 +46,7 @@ import okhttp3.Response;
  * @version 2017年5月14日 作者
  */
 @Component
-public class BetCommand implements Command {
+public class BetCommand extends WangPanCommandSupport implements Command {
     
     /** FIXME */
     private static final Logger logger = LoggerFactory.getLogger(BetCommand.class);
@@ -59,6 +58,10 @@ public class BetCommand implements Command {
     /** FIXME */
     @Autowired
     private ContactService contactService;
+    
+    /** FIXME */
+    @Value("${wanpan.bet.url}")
+    private String betUrl;
     
     @Override
     public void execute(RequestContext context) {
@@ -81,21 +84,15 @@ public class BetCommand implements Command {
             return;
         }
         
-        Request req = new Request.Builder() //
-            .url("http://localhost/rest/lot!lot.action") //
-            .post(new FormBody.Builder() //
-                .add("dataList", dataList) //
-                .add("operId", userName)//
-                .build() //
-            ).build();
-            
+        Map<String, Object> map = ImmutableMap.of( //
+            "dataList", dataList, //
+            "operId", userName //
+        );
+        
         try {
-            Response response = WebClient.instance.execute(req);
-            String json = response.body().string();
-            WangPanRespon res = JSON.parseObject(json, WangPanRespon.class);
+            WangPanRespon res = this.doRequest(betUrl, map);
             String strMsg = null;
             if (res.code == 1) {
-                // 成功
                 logger.info("投注成功");
                 strMsg = String.format("@%s您的%s投注成功,账户余额为%s", userName, betRequest.getPlayed().getName(), res.yuer);
             } else {
@@ -133,37 +130,6 @@ public class BetCommand implements Command {
         }
         
         return JSON.toJSONString(list);
-    }
-    
-    /**
-     * FIXME 类注释信息(此标记自动生成,注释填写完成后请删除)
-     * 
-     * <pre>
-     * [
-     * 调用关系:
-     * 实现接口及父类:
-     * 子类:
-     * 内部类列表:
-     * ]
-     * </pre>
-     * 
-     * @author 作者
-     * @since 1.0
-     * @version 2017年5月17日 作者
-     */
-    static class WangPanRespon {
-        
-        /** FIXME */
-        public String msg;
-        
-        /** FIXME */
-        public BigDecimal totalsum;
-        
-        /** FIXME */
-        public String yuer;
-        
-        /** FIXME */
-        public int code;
     }
     
 }

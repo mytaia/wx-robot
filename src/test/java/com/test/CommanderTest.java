@@ -12,8 +12,8 @@ import org.springframework.test.context.junit4.SpringRunner;
 import me.robin.wx.robot.Application;
 import me.robin.wx.robot.frame.api.WxMessageSender;
 import me.robin.wx.robot.frame.model.WxMsg;
-import me.robin.wx.robot.lot.cmd.BetCommand;
 import me.robin.wx.robot.lot.cmd.Commander;
+import me.robin.wx.robot.lot.cmd.resolver.bet.BetCommand;
 import me.robin.wx.robot.lot.core.RequestContext;
 
 /**
