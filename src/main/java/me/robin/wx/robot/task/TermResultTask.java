@@ -4,6 +4,8 @@ package me.robin.wx.robot.task;
 import java.util.List;
 
 import org.apache.commons.lang3.StringUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.EnableScheduling;
 import org.springframework.scheduling.annotation.Scheduled;
@@ -38,6 +40,9 @@ import me.robin.wx.robot.lot.service.GroupService;
 public class TermResultTask {
     
     /** FIXME */
+    private static final Logger logger = LoggerFactory.getLogger(TermResultTask.class);
+    
+    /** FIXME */
     @Autowired
     private WxMessageSender sender;
     
@@ -58,17 +63,21 @@ public class TermResultTask {
         if (CollectionUtils.isEmpty(groups)) {
             return;
         }
+        
+        String str = WebClient.instance.downloadString("http://gxsf13.ttgw08.com/getqi.aspx?type=1");
+        String[] arr = StringUtils.split(str, ",");
+        if (arr.length != 6) {
+            logger.warn("获取快十开奖结果的格式不正确:{}", str);
+            return;
+        }
+        String msg = String.format("第%s期的结果是%s,%s,%s,%s,%s", (Object[]) arr);
+        
         for (Group group : groups) {
             WxGroup wxGroup = contactService.getWxGroup(group.getNickName());
             if (wxGroup == null) {
                 continue;
             }
-            String str = WebClient.instance.downloadString("http://gxsf13.ttgw08.com/getqi.aspx?type=1");
-            String[] arr = StringUtils.split(str, ",");
-            if (arr.length == 6) {
-                String msg = String.format("第%s期的结果是%s,%s,%s,%s,%s", (Object[]) arr);
-                sender.sendTextMessage(wxGroup.getUserName(), msg);
-            }
+            sender.sendTextMessage(wxGroup.getUserName(), msg);
         }
     }
 }
