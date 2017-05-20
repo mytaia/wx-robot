@@ -74,6 +74,7 @@ public class WangPanCommandSupport {
             params.forEach((k, v) -> {
                 form.add(k, String.valueOf(v));
             });
+            req.post(form.build());
         }
         return req.build();
     }

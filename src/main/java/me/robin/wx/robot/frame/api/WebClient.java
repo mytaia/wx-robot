@@ -92,11 +92,12 @@ public class WebClient {
      * @throws IOException x
      */
     public String executeString(Request request) throws IOException {
-        Response response = execute(request);
-        if (response.isSuccessful()) {
-            return response.body().string();
+        try (Response response = execute(request)) {
+            if (response.isSuccessful()) {
+                return response.body().string();
+            }
+            return null;
         }
-        return null;
     }
     
     /**
@@ -118,18 +119,17 @@ public class WebClient {
     /**
      * FIXME 方法注释信息(此标记由Eclipse自动生成,请填写注释信息删除此标记)
      * 
-     * @param url x
+     * @param <T > x
+     * @param request x
+     * @param clazz x
+     * @param callback x
      * @return x
+     * @throws IOException x
      */
-    public String downloadString(String url) {
-        Request request = new Request.Builder().url(url).build();
-        try {
-            Response response = client.newCall(request).execute();
-            if (response.isSuccessful()) {
-                return response.body().string();
-            }
-        } catch (IOException e) {
-            logger.error("请求异常 url =" + url, e);
+    public <T> T executeObject(Request request, Class<T> clazz) throws IOException {
+        String content = executeString(request);
+        if (StringUtils.isNotBlank(content)) {
+            return JSONObject.parseObject(content, clazz);
         }
         return null;
     }

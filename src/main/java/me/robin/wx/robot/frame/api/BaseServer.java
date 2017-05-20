@@ -7,8 +7,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
-import java.util.Timer;
-import java.util.TimerTask;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.TimeUnit;
 
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
@@ -26,8 +26,8 @@ import com.alibaba.fastjson.util.TypeUtils;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Lists;
 
-import me.robin.wx.robot.frame.DelayTask;
 import me.robin.wx.robot.frame.WxConst;
+import me.robin.wx.robot.frame.exetor.ExecutorServiceFactory;
 import me.robin.wx.robot.frame.listener.ServerStatusListener;
 import me.robin.wx.robot.frame.model.LoginUser;
 import me.robin.wx.robot.frame.model.WxMsg;
@@ -49,9 +49,11 @@ import okhttp3.Response;
  */
 public abstract class BaseServer implements Runnable, WxApi {
     
+    /** FIXME */
     private static final Logger logger = LoggerFactory.getLogger(BaseServer.class);
     
-    private static final Timer delayTaskScheduler = new Timer("DelayTaskScheduler");
+    /** FIXME */
+    private final ScheduledExecutorService weixinTaskScheduler = ExecutorServiceFactory.newScheduledThreadPool(1, "weixin");
     
     private String appId;
     
@@ -90,7 +92,7 @@ public abstract class BaseServer implements Runnable, WxApi {
             try {
                 user.wait();
             } catch (InterruptedException e) {
-                e.printStackTrace();
+                logger.error("", e);
             }
         }
     }
@@ -486,18 +488,13 @@ public abstract class BaseServer implements Runnable, WxApi {
     
     /**
      * 延时任务
-     *
+     * 
+     * @param runnable x
      * @param delayTask 任务
      * @param delaySecond 延时时间
      */
-    void delayTask(DelayTask delayTask, float delaySecond) {
-        delayTaskScheduler.schedule(new TimerTask() {
-            
-            @Override
-            public void run() {
-                delayTask.execute();
-            }
-        }, (long) (delaySecond * 1000));
+    void delayTask(Runnable runnable, long delaySecond) {
+        weixinTaskScheduler.schedule(runnable, delaySecond, TimeUnit.SECONDS);
     }
     
     public void setStatusListener(ServerStatusListener statusListener) {

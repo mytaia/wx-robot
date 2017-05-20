@@ -73,7 +73,7 @@ public class TermResultTask {
         String msg = String.format("第%s期的结果是%s,%s,%s,%s,%s", (Object[]) arr);
         
         for (Group group : groups) {
-            WxGroup wxGroup = contactService.getWxGroup(group.getNickName());
+            WxGroup wxGroup = contactService.getAllWxGroup().stream().filter(g -> group.getNickName().equals(g.getNickName())).findFirst().get();
             if (wxGroup == null) {
                 continue;
             }
