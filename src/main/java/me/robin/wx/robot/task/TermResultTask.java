@@ -38,7 +38,7 @@ import me.robin.wx.robot.lot.service.GroupService;
  */
 @Component
 @EnableScheduling
-public class TermResultTask {
+public class TermResultTask {//
     
     /** FIXME */
     private static final Logger logger = LoggerFactory.getLogger(TermResultTask.class);
