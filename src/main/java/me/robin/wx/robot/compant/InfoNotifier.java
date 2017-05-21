@@ -6,6 +6,7 @@ import java.util.Objects;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
 import com.alibaba.fastjson.JSON;
@@ -36,6 +37,10 @@ public class InfoNotifier {
     /** FIXME */
     private final static String NOTIFY_URL = "http://sc.ftqq.com/SCU8041Tcda432d492f51ce7100418910f7a8e445907fc1f5bb15.send";
     
+    /** FIXME */
+    @Value("${loginNotify:false}")
+    private boolean loginNotify;
+    
     /**
      * FIXME 方法注释信息(此标记由Eclipse自动生成,请填写注释信息删除此标记)
      *
@@ -43,6 +48,10 @@ public class InfoNotifier {
      * @param content x
      */
     public void notify(String title, String content) {
+        if (!loginNotify) {
+            return;
+        }
+        
         try {
             String res = WebClient.instance.downloadString(NOTIFY_URL, ImmutableMap.<String, String> of("text", title, "desp", content));
             Result result = JSON.parseObject(res, Result.class);

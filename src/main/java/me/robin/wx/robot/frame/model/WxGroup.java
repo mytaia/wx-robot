@@ -15,6 +15,10 @@ public class WxGroup extends WxUser {
     private int memberCount;
     
     /** FIXME */
+    @JSONField(name = "EncryChatRoomId")
+    private String encryChatRoomId;
+    
+    /** FIXME */
     @JSONField(name = "MemberList")
     private List<WxUser> memberList;
     
@@ -52,6 +56,20 @@ public class WxGroup extends WxUser {
      */
     public void setMemberList(List<WxUser> memberList) {
         this.memberList = memberList;
+    }
+    
+    /**
+     * @return the encryChatRoomId
+     */
+    public String getEncryChatRoomId() {
+        return encryChatRoomId;
+    }
+    
+    /**
+     * @param encryChatRoomId the encryChatRoomId to set
+     */
+    public void setEncryChatRoomId(String encryChatRoomId) {
+        this.encryChatRoomId = encryChatRoomId;
     }
     
 }

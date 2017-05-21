@@ -2,6 +2,10 @@
 package me.robin.wx.robot;
 
 import org.springframework.boot.SpringBootConfiguration;
+import org.springframework.boot.autoconfigure.velocity.VelocityProperties;
+import org.springframework.boot.web.servlet.view.velocity.EmbeddedVelocityToolboxView;
+import org.springframework.boot.web.servlet.view.velocity.EmbeddedVelocityViewResolver;
+import org.springframework.context.annotation.Bean;
 
 /**
  * FIXME 类注释信息(此标记自动生成,注释填写完成后请删除)
@@ -21,5 +25,22 @@ import org.springframework.boot.SpringBootConfiguration;
  */
 @SpringBootConfiguration
 public class Beans {
+    
+    /**
+     * FIXME 方法注释信息(此标记由Eclipse自动生成,请填写注释信息删除此标记)
+     *
+     * @param properties x
+     * @return x
+     */
+    @SuppressWarnings("deprecation")
+    @Bean(name = "velocityViewResolver")
+    public EmbeddedVelocityViewResolver velocityViewResolver(VelocityProperties properties) {
+        EmbeddedVelocityViewResolver resolver = new EmbeddedVelocityViewResolver();
+        resolver.setViewClass(EmbeddedVelocityToolboxView.class);
+        
+        // resolver.setToolboxConfigLocation(url);
+        properties.applyToViewResolver(resolver);
+        return resolver;
+    }
     
 }

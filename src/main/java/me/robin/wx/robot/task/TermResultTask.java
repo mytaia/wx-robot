@@ -2,6 +2,7 @@
 package me.robin.wx.robot.task;
 
 import java.util.List;
+import java.util.Optional;
 
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
@@ -73,11 +74,11 @@ public class TermResultTask {
         String msg = String.format("第%s期的结果是%s,%s,%s,%s,%s", (Object[]) arr);
         
         for (Group group : groups) {
-            WxGroup wxGroup = contactService.getAllWxGroup().stream().filter(g -> group.getNickName().equals(g.getNickName())).findFirst().get();
-            if (wxGroup == null) {
+            Optional<WxGroup> wxGroup = contactService.getAllWxGroup().stream().filter(g -> group.getNickName().equals(g.getNickName())).findFirst();
+            if (!wxGroup.isPresent()) {
                 continue;
             }
-            sender.sendTextMessage(wxGroup.getUserName(), msg);
+            sender.sendTextMessage(wxGroup.get().getUserName(), msg);
         }
     }
 }

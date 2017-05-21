@@ -2,6 +2,7 @@
 package me.robin.wx.robot.frame.api;
 
 import java.io.File;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.List;
@@ -10,12 +11,14 @@ import java.util.Optional;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 
-import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
+import org.apache.commons.lang3.RandomUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.util.CollectionUtils;
 
 import com.alibaba.fastjson.JSON;
@@ -26,10 +29,13 @@ import com.alibaba.fastjson.util.TypeUtils;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Lists;
 
+import me.robin.wx.robot.event.LoginStatusChangeEvent;
+import me.robin.wx.robot.event.bean.LoginStatusEnum;
 import me.robin.wx.robot.frame.WxConst;
 import me.robin.wx.robot.frame.exetor.ExecutorServiceFactory;
 import me.robin.wx.robot.frame.listener.ServerStatusListener;
 import me.robin.wx.robot.frame.model.LoginUser;
+import me.robin.wx.robot.frame.model.WxGroup;
 import me.robin.wx.robot.frame.model.WxMsg;
 import me.robin.wx.robot.frame.model.response.AbstractResponse;
 import me.robin.wx.robot.frame.model.response.GetBatchContactResponse;
@@ -59,6 +65,14 @@ public abstract class BaseServer implements Runnable, WxApi {
     
     final LoginUser user = new LoginUser();
     
+    /** 用户头像存放的目录 */
+    @Value("${user.headImg.path:}")
+    private String userHeadImgPath;
+    
+    /** FIXME */
+    @Autowired
+    private ApplicationEventPublisher eventPublisher;
+    
     @Autowired
     ServerStatusListener statusListener;
     
@@ -80,12 +94,12 @@ public abstract class BaseServer implements Runnable, WxApi {
         this.queryNewUUID();
     }
     
-    boolean checkLogin() {
+    public boolean isLogin() {
         return login;
     }
     
     public void waitLoginDone() {
-        if (checkLogin()) {
+        if (isLogin()) {
             return;
         }
         synchronized (user) {
@@ -99,7 +113,7 @@ public abstract class BaseServer implements Runnable, WxApi {
     
     @Override
     public LoginUser loginUser() {
-        return login ? user : null;
+        return user;
     }
     
     /**
@@ -359,7 +373,9 @@ public abstract class BaseServer implements Runnable, WxApi {
                     idx = content.indexOf("\"", idx);
                     int e_idx = content.indexOf("\"", idx + 1);
                     BaseServer.this.user.setUuid(content.substring(idx + 1, e_idx));
-                    statusListener.onUUIDSuccess("https://login.weixin.qq.com/qrcode/" + BaseServer.this.user.getUuid());
+                    String qrCodeUrl = "https://login.weixin.qq.com/qrcode/" + BaseServer.this.user.getUuid();
+                    statusListener.onUUIDSuccess(qrCodeUrl);
+                    eventPublisher.publishEvent(new LoginStatusChangeEvent(LoginStatusEnum.QrCode, qrCodeUrl));
                     BaseServer.this.waitForLogin();
                 } else {
                     logger.warn("没有正常获取到UUID");
@@ -390,14 +406,17 @@ public abstract class BaseServer implements Runnable, WxApi {
                     case "201":
                         logger.info("请点击手机客户端确认登录");
                         BaseServer.this.user.setUserAvatar(StringUtils.substringBetween(content, "window.userAvatar = '", "';"));
+                        eventPublisher.publishEvent(new LoginStatusChangeEvent(LoginStatusEnum.Message, "请点击手机客户端确认登录"));
                         delayTask(BaseServer.this::waitForLogin, 2);
                         break;
                     case "408":
                         logger.info("请用手机客户端扫码登录web微信");
+                        eventPublisher.publishEvent(new LoginStatusChangeEvent(LoginStatusEnum.Message, "请用手机客户端扫码登录web微信"));
                         waitForLogin();
                         break;
                     case "400":
                         logger.info("二维码失效");
+                        eventPublisher.publishEvent(new LoginStatusChangeEvent(LoginStatusEnum.Message, "二维码失效"));
                         BaseServer.this.queryNewUUID();
                         break;
                     default:
@@ -436,6 +455,9 @@ public abstract class BaseServer implements Runnable, WxApi {
         if (null != params) {
             for (int i = 0; i < params.length; i += 2) {
                 if (i + 1 < params.length) {
+                    if (params[i + 1] == null) {
+                        continue;
+                    }
                     urlBuilder.addQueryParameter(String.valueOf(params[i]), String.valueOf(params[i + 1]));
                 } else {
                     urlBuilder.addQueryParameter(String.valueOf(params[i]), "");
@@ -499,6 +521,32 @@ public abstract class BaseServer implements Runnable, WxApi {
     
     public void setStatusListener(ServerStatusListener statusListener) {
         this.statusListener = statusListener;
+    }
+    
+    /**
+     * 获取头像
+     * 
+     * @param userName x
+     * @param group x
+     * @return x
+     * @throws IOException x
+     */
+    public File getHeadImg(String userName, WxGroup group) throws IOException {
+        Request.Builder request = initRequestBuilder("/cgi-bin/mmwebwx-bin/webwxgeticon", //
+            "username", userName, //
+            "chatroomid", group == null ? null : group.getEncryChatRoomId(), //
+            "skey", this.loginUser().getSkey(), //
+            "seq", String.valueOf(RandomUtils.nextInt(0, 100000)) //
+        );
+        
+        try (Response response = webClient.execute(request.build())) {
+            // 存入到头像文件夹#CTX/headImg?userName=<%user.userName%>
+            File file = new File(WxUtil.getUserHeadImgPath(userHeadImgPath, userName));
+            try (FileOutputStream fos = new FileOutputStream(file)) {
+                IOUtils.copy(response.body().byteStream(), fos);
+                return file;
+            }
+        }
     }
     
     public abstract class BaseCallback implements Callback {
@@ -585,9 +633,10 @@ public abstract class BaseServer implements Runnable, WxApi {
             try {
                 String content = ResponseReadUtils.read(response);
                 if (logger.isInfoEnabled()) {
-                    String file = call.request().url().encodedPath().toString()
-                        .substring(call.request().url().encodedPath().toString().lastIndexOf("/"));
-                    FileUtils.write(new File("e:\\potol\\" + file + ".txt"), content, "utf-8");
+                    // String file = call.request().url().encodedPath().toString()
+                    // .substring(call.request().url().encodedPath().toString().lastIndexOf("/"));
+                    
+                    // FileUtils.write(new File("e:\\potol\\" + file + ".txt"), content, "utf-8");
                     logger.info("请求{}的结果:{}", call, content);
                 }
                 T bean = JSON.parseObject(content, clazz);

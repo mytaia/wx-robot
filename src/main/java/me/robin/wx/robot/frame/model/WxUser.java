@@ -68,6 +68,9 @@ public class WxUser {
     @JSONField(name = "DisplayName")
     private String displayName;
     
+    /** FIXME */
+    private String exUserId;
+    
     /**
      * @return the userName
      */
@@ -276,6 +279,20 @@ public class WxUser {
      */
     public void setAttrStatus(long attrStatus) {
         this.attrStatus = attrStatus;
+    }
+    
+    /**
+     * @return the exUserId
+     */
+    public String getExUserId() {
+        return exUserId;
+    }
+    
+    /**
+     * @param exUserId the exUserId to set
+     */
+    public void setExUserId(String exUserId) {
+        this.exUserId = exUserId;
     }
     
 }

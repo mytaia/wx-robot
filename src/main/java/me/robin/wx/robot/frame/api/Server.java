@@ -46,7 +46,7 @@ public class Server extends BaseServer {
     
     public void sendTextMessage(String user, String message) {
         
-        if (!checkLogin()) {
+        if (!isLogin()) {
             logger.info("还未完成登录,不能发送消息");
             return;
         }
@@ -145,7 +145,7 @@ public class Server extends BaseServer {
      * @param name
      */
     public void modChatRoomName(String chatRoom, String name) {
-        if (!checkLogin()) {
+        if (!isLogin()) {
             logger.info("还未完成登录,不能发送消息");
         } else {
             WxUser wxUser = contactService.queryUser(chatRoom);

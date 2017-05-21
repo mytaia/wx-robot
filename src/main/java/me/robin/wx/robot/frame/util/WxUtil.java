@@ -1,8 +1,11 @@
 
 package me.robin.wx.robot.frame.util;
 
+import java.util.Base64;
+import java.util.Base64.Decoder;
 import java.util.function.Consumer;
 
+import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang3.RandomStringUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.web.util.HtmlUtils;
@@ -13,7 +16,6 @@ import me.robin.wx.robot.frame.WxConst;
 import me.robin.wx.robot.frame.model.WxMsg;
 import okhttp3.MediaType;
 import okhttp3.RequestBody;
-import sun.misc.BASE64Decoder;
 
 /**
  * Created by xuanlubin on 2017/4/18.
@@ -40,12 +42,13 @@ public class WxUtil {
     }
     
     public static byte[] fromBase64Img(String imgStr) {
+        
         if (imgStr == null) // 图像数据为空
             return null;
-        BASE64Decoder decoder = new BASE64Decoder();
+        Decoder decoder = Base64.getDecoder();
         try {
             // Base64解码
-            byte[] b = decoder.decodeBuffer(imgStr);
+            byte[] b = decoder.decode(imgStr);
             for (int i = 0; i < b.length; ++i) {
                 if (b[i] < 0) {// 调整异常数据
                     b[i] += 256;
@@ -122,5 +125,24 @@ public class WxUtil {
      */
     public static String builddminMessage(String msg) {
         return WxConst.ADMIN_MESSAGE_PREX + msg;
+    }
+    
+    /**
+     * FIXME 方法注释信息(此标记由Eclipse自动生成,请填写注释信息删除此标记)
+     * 
+     * @param rootPath x
+     * @param userName x
+     * @return x
+     */
+    public static String getUserHeadImgPath(String rootPath, String userName) {
+        String root = rootPath;
+        if (StringUtils.isEmpty(root)) {
+            root = FileUtils.getTempDirectoryPath();
+        }
+        if (!root.endsWith("/")) {
+            root = root + "/";
+        }
+        
+        return root + userName + ".png";
     }
 }

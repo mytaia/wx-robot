@@ -40,6 +40,7 @@ public class DefaultServerStatusListener implements ServerStatusListener {
     @Autowired
     private GroupMessageHandler groupMessageHandler;
     
+    /** FIXME */
     @Autowired
     private InfoNotifier InfoNotifier;
     

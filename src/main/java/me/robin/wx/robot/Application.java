@@ -27,7 +27,7 @@ import me.robin.wx.robot.frame.api.Server;
  * @version 2017年5月3日 作者
  */
 @SpringBootApplication
-@ImportResource(value="classpath:*applicationContext.xml")
+@ImportResource(value = "classpath:*applicationContext*.xml")
 public class Application {
     
     /** FIXME */
