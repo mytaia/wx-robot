@@ -1,0 +1,11 @@
+#macro(PAGE_CONTENT)      
+<input id="abc" role="dict" data-dict-param='{"key":"edu","title":"学历选择","value":"高中"}'>
+<input id="job" role="dict" data-dict-param='{"key":"job","title":"在职情况"}'>
+
+<script>
+	require(['jquery','base'],function($){ 
+		$("input").dataDict()
+	})
+</script>
+#end	
+#HTML_PAGE( "#PAGE_CONTENT" )

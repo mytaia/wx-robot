@@ -1,0 +1,171 @@
+body{
+	   /* font-family:  "Helvetica Neue",Helvetica,Arial,SimSun,sans-serif;*/
+	   font-size: 15px; 
+}
+ 
+li{
+	list-style: none;
+}
+
+.navbar-inverse {
+    background-color: #003c78;
+    border-color: #003c78;
+}
+
+.navbar-inverse .navbar-nav>.active>a, .navbar-inverse .navbar-nav>.active>a:focus, .navbar-inverse .navbar-nav>.active>a:hover {
+    color: #fff;
+    background-color: #002040;
+} 
+
+.navbar-inverse .navbar-nav>li>a {
+    color: #fff8;
+} 
+
+.navbar-brand { 
+    padding: 9px 10px; 
+} 
+
+.navbar-brand > img { 
+    height:35px;
+}
+
+.navbar-content{
+    padding: 10px 5px 10px 20px;
+    background: #f4f4f4;
+    border-radius: 4px;
+    /* margin-left: 38px; */
+    color: #666;
+}
+
+
+/*========数据字典=========*/
+.dict li{ 
+    display: inline-block;
+    border: #0c0 solid 1px;
+    padding: 5px 15px;
+    margin: 10px 15px;
+    cursor: pointer;
+    color:#666;
+}
+.dict li:hover ,.dict li.selected{  
+    background-color:#0c0;
+    color:#fff;
+} 
+/*=========================*/
+
+/*========登录状态=========*/
+#home .qrcode{
+	text-align: center;
+}
+#home #login_msg{
+	border: #ccc solid 1px;
+	width:600px;
+	margin:0 auto;
+	height: 120px;
+	overflow: auto;
+} 
+/**==========群组页====================**/
+#group_list .left{
+	display:block;
+	float: left;
+	width: 200px;
+	min-height: 300px;
+	margin: 10px 0 0 0;
+	padding: 0px;
+}
+
+#group_list ul{ 
+	padding: 0px;
+	margin-top: 20px;
+}
+
+
+#group_list .left li{ 
+	background:#fff;
+	list-style:none;
+	display: block;
+	border : #ccc solid 1px;
+	padding : 10px 5px 10px 20px;
+	border-right:  none ;
+	margin-top: 5px;
+	border-top-left-radius: 2px;
+	border-bottom-left-radius: 2px;
+}
+
+#group_list .left li.select{ 
+	border-left: #003c78 solid 3px ; 
+	width: 201px;
+	padding : 10px 5px 10px 18px;
+}
+
+#group_list .main{
+
+	min-height: 500px;
+	margin: 5px 0 0 200px; 
+	padding: 20px 0 0 0; 
+	border-left: #ccc solid 1px;
+}
+
+#group_list .search{    
+	margin-left: 10px;
+}
+
+#group_list .users{   
+	margin :10px 0 0 10px;
+} 
+
+#group_list .user{     
+	display: inline-block;
+    border: #ccc solid 1px;
+    margin: 5px 5px 5px 0;  
+}
+
+#group_list .user .headimg{ 
+	overflow:hidden;
+	width : 80px; 
+	max-height :  120px; 
+	margin :4px;
+	border-radius:3px; 
+	position: relative;
+}
+#group_list .user .headimg img{ 
+	width : 80px;  
+	border-radius: 3px;
+}
+
+#group_list .user .info{     
+	margin : 3px 4px;  
+	text-overflow: ellipsis;
+	position: relative;
+}
+
+
+#group_list .user .nickName{     
+	padding:1px 0 1px 3px;
+    margin-top: 5px;
+    border-bottom: #ccc solid 1px;
+    text-overflow: ellipsis;
+    overflow: hidden;
+    white-space: nowrap;
+    position: absolute;
+    bottom: 0px;
+    background: rgba(0,0,0,0.4);
+    color: #fff;
+    width: 100%;
+}
+
+#group_list .user .exUser{     
+	word-break: break-all;
+    text-overflow: ellipsis;
+    overflow: hidden;
+    height: 20px;
+}
+
+#group_list .user .info .glyphicon-edit{
+	cursor: pointer; 
+    top: 3px;
+    right: 0;
+    position: absolute;
+}
+ 
+

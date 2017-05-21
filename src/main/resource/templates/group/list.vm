@@ -1,0 +1,109 @@
+#macro(PAGE_CONTENT)      
+<div id="group_list" class="container ">
+	<section class="navbar-content">
+		 群管理
+	</section>
+	<div class="left">
+		<ul >
+			#set ($i=0)
+			#foreach( $group in $groups )
+				<li #if ($i==0) class="select" #end data-username="${group.userName}">${group.nickName}</li>
+				#set ($i=$i+1) 
+			#end
+		</ul>
+	</div>
+	<div class="main">
+		<form class="form-inline search">
+		  <div class="form-group text-right">
+		    <label class="sr-only" for="exampleInputEmail3">Email address</label>
+		    <input type="email" class="form-control" id="exampleInputEmail3" placeholder="Email">
+		  </div> 
+		  <button type="submit" class="btn btn-primary">搜索</button>
+		</form>
+		
+		<div class="users">
+			#set ($group=${groups.get(0)}) 
+			#foreach($user in $group.memberList)
+			<section class="user">
+				<div class="headimg">
+					<img src="#CTX/group/headImg?userName=${user.userName}&groupName=${group.userName}"/>
+					<div  class="nickName" title="$!{user.nickName}">$!{user.nickName}</div>
+				</div>
+				<div class="info" data-user='{"userName":"$!{user.userName}","exUserId":"$!{user.exUserId}"}'>
+					<div class="exUser" title="$!{user.exUserId}">$!{user.exUserId}</div>
+					<span class="glyphicon glyphicon-edit" aria-hidden="true"></span>
+				</div>
+			</section>
+			#end 
+			 
+			 
+		</div>
+	</div>
+</div>
+<script>
+	require(['jquery','underscore','layer','bs'],function($,_,layer){ 
+		var currentGroupUserName = "$group.userName";
+		$("#group_list").on("click",".left li",function(e){ 
+			var $this=this;
+			currentGroupUserName = $($this).data("username");
+			$("#group_list .left li").each(function(i,n){ 
+				if(n==$this){
+					$(this).addClass("select") ;
+					//loadGroup
+					loadGroup( currentGroupUserName );
+				}else{	
+				 	$(this).removeClass("select");
+				}
+			});
+		});
+		
+		
+		$("#group_list").on("click",".glyphicon-edit",function(e){ 
+			var user = $(this).parent().data("user");
+			layer.prompt({title: '修改对应网盘的账号', formType: 3,value:user.exUserId }, function(txt, index){
+				layer.close(index);
+				var um ={userName : user.userName,exUserId:txt,groupUserName : currentGroupUserName}
+				$.get("#CTX/group/updateExUserId", um ,function(data){
+				      layer.alert("xxxx");
+				},"json");
+			});
+		});
+		
+		function loadGroup(userName){
+			$.getJSON("#CTX/group/queryGroup",{"userName":userName},function(resp){
+				var str = _.template($("#userView").text())( resp ); 
+				$(".users").html(str);
+			})
+		}
+		
+	})
+</script>
+
+<script type="template/text" id="userView">
+	<%_.each(obj.memberList,function(user,i){%> 
+			<section class="user">
+				<div class="headimg">
+					<img src="#CTX/group/headImg?userName=<%=user.userName%>&groupName=<%=obj.userName%>"/>
+					<div  class="nickName" title="<%=user.nickName%>"><%=user.nickName%></div>
+				</div>
+				<div class="info" data-user="{userName:'<%=user.userName%>',exUserId:'<%=user.exUserId%>'}">
+					<div class="exUser" title="<%=user.exUserId%>"><%=user.exUserId%></div>
+					<span class="glyphicon glyphicon-edit" aria-hidden="true"></span>
+				</div>
+			</section>
+	<%});%>
+</script>
+
+<script type="template/text" id="editUserView">
+<div  class="form-group">
+							<div class="form-group "> 
+							    <input class="form-control" placeholder="网盘用户名" >
+							</div>  
+							<div class="form-group"> 
+							     <span class="glyphicon glyphicon glyphicon-ok" aria-hidden="true"></span>
+							     <span class="glyphicon glyphicon glyphicon-remove" aria-hidden="true"></span>
+							</div> 
+						<div>
+</script>
+#end	
+#HTML_PAGE( "#PAGE_CONTENT" )

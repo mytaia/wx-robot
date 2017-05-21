@@ -1,0 +1,19 @@
+<toolbox>
+   <tool>
+      <key>shiro</key>
+      <scope>request</scope>
+      <class>me.robin.wx.robot.web.velocity.ShiroTool</class>
+   </tool>
+   <tool>
+      <key>menu</key>
+      <scope>request</scope>
+      <class>me.robin.wx.robot.web.velocity.MenuTool</class>
+   </tool>
+   <tool>
+      <key>page</key>
+      <scope>request</scope>
+      <class>me.robin.wx.robot.web.velocity.PageTool</class>
+   </tool> 
+   <xhtml>true</xhtml>
+ </toolbox>
+  

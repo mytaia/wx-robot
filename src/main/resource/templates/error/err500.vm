@@ -1,0 +1,43 @@
+#HTML("服务平台")
+<body>
+<style type="text/css">
+body,html{
+  height:100%;
+}
+</style>
+
+<header class="w-navbar navbar  navbar-inverse" role="navigation" style="position: relative;border-radius:0px;z-index: 999;margin-bottom:0;">
+ <div class="container">
+  <div class="navbar-header">
+    <a class="navbar-brand w-nav-brand" href="#CTX/" >  
+    <img class="w-nav-logo" src="#CTX/include/modules/web/img/w_logo_48.png" alt="">
+    企信
+    </a>
+  </div>
+  </div> 
+</header>
+<div>
+  <div class="container" style="position:relative;">
+	<div style="margin-top:20px;padding:20px;background-color:#fff;border-radius:5px;border:solid 1px #ccc;box-shadow:0 0 5px rgba(0,0,0,0.1);">
+		<div class="clearfix" style="position:relative;z-index:1000;">
+	      	<div class="text-center">
+		      <h2><strong>500 - 系统发生内部错误.</strong></h2>
+				<p style="margin:20px;">
+					<a class="btn btn-primary" href="/">返回首页</a>
+				</p>
+			</div>
+			<div class="text-danger"> 
+				#* $!esc.html(${exceptionData})*# 
+			</div>
+	    </div>
+	</div>
+  </div>
+  
+ #MAIN_FOOTER
+ 
+  
+</div>
+
+</body>
+
+#_HTML()

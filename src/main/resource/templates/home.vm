@@ -1,0 +1,31 @@
+#macro(PAGE_CONTENT)      
+<div id="group_list" class="container ">
+	<div id="home">
+		#if (!$isLogin)
+		<div class="qrcode">
+			<img src="https://login.weixin.qq.com/qrcode/${user.uuid}" />
+		</div>
+		#end
+		
+		<div id="login_msg">
+			 
+		</div>
+	</div>
+</div>
+<script>
+	require(['jquery','base'],function($){ 
+		$(function(){ 
+			var source = new EventSource('#CTX/stream');
+			
+			source.onmessage = function(e){
+				var msg=$.parseJSON(e.data);
+				console.log( msg,msg.data)
+			    $("#login_msg").append(msg.data+"<br>");
+			};
+			 
+		})
+	})
+</script>
+
+#end	
+#HTML_PAGE( "#PAGE_CONTENT" )
