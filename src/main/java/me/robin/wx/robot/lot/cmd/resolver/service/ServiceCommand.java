@@ -17,8 +17,6 @@ import com.google.common.collect.ImmutableMap;
 
 import me.robin.wx.robot.frame.api.WxMessageSender;
 import me.robin.wx.robot.frame.model.WxGroupMsg;
-import me.robin.wx.robot.frame.model.WxUser;
-import me.robin.wx.robot.frame.service.ContactService;
 import me.robin.wx.robot.lot.cmd.Command;
 import me.robin.wx.robot.lot.cmd.WangPanCommandSupport;
 import me.robin.wx.robot.lot.core.RequestContext;
@@ -54,10 +52,6 @@ public class ServiceCommand extends WangPanCommandSupport implements Command {
     @Autowired
     private WxMessageSender messageSender;
     
-    /** FIXME */
-    @Autowired
-    private ContactService contactService;
-    
     @Override
     public void execute(RequestContext context) {
         ServiceRequest req = (ServiceRequest) context.getMessageRequest();
@@ -65,21 +59,18 @@ public class ServiceCommand extends WangPanCommandSupport implements Command {
         
         WxGroupMsg msg = (WxGroupMsg) context.getMessage();
         String group = msg.getGroup();
-        String sender = msg.getSender();
-        WxUser user = contactService.queryUser(sender);
-        String userName = null;
-        if (user != null) {
-            userName = user.getRemarkName();
-        }
         
-        if (userName == null) {
-            logger.warn("用户{}没有设置对应的账号，服务指令[{}]被忽略", user.getNickName(), context.getInput());
+        String nickName = context.getSender().getNickName();
+        String exUserId = context.getUserMapper().getExUserId();
+        
+        if (exUserId == null) {
+            logger.warn("用户{}没有设置对应的账号，服务指令[{}]被忽略", nickName, context.getInput());
             return;
         }
         
         Map<String, Object> map = ImmutableMap.<String, Object> of( //
             "serviceName", req.getServicCommandeEnum().code(), //
-            "operId", userName //
+            "operId", exUserId //
         );
         
         try {
@@ -87,10 +78,10 @@ public class ServiceCommand extends WangPanCommandSupport implements Command {
             String strMsg = null;
             if (res.code == 1) {
                 // 成功
-                strMsg = String.format("@%s指令成功处理,%s", userName, res.msg);
+                strMsg = String.format("@%s指令成功处理,%s", exUserId, res.msg);
             } else {
                 logger.error("向网盘提交服务指令时失败 :{}", res.msg);
-                strMsg = String.format("@%s指令处理失败,原因是 ： %s", userName, res.msg);
+                strMsg = String.format("@%s指令处理失败,原因是 ： %s", exUserId, res.msg);
             }
             messageSender.sendTextMessage(group, strMsg);
         } catch (IOException e) {

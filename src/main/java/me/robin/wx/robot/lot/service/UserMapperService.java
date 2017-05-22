@@ -75,6 +75,17 @@ public class UserMapperService {
     /**
      * FIXME 方法注释信息(此标记由Eclipse自动生成,请填写注释信息删除此标记)
      * 
+     * @param userName x
+     * @param groupNickName x
+     * @return x
+     */
+    public UserMapper findByUserName(String userName, String groupNickName) {
+        return userMapperDao.findByUserName(userName, groupNickName);
+    }
+    
+    /**
+     * FIXME 方法注释信息(此标记由Eclipse自动生成,请填写注释信息删除此标记)
+     * 
      * @param nickName x
      * @param groupNickName x
      * @return x

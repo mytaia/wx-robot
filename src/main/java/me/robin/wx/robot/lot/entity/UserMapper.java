@@ -44,6 +44,10 @@ public class UserMapper extends BaseEntity {
     @Column(length = 40)
     private String nickName;
     
+    /** 用户在群中的userName */
+    @Column(length = 80)
+    private String userName;
+    
     /** 群昵称 */
     @Column(length = 40)
     private String groupNickName;
@@ -106,6 +110,20 @@ public class UserMapper extends BaseEntity {
      */
     public void setGroupNickName(String groupNickName) {
         this.groupNickName = groupNickName;
+    }
+    
+    /**
+     * @return the userName
+     */
+    public String getUserName() {
+        return userName;
+    }
+    
+    /**
+     * @param userName the userName to set
+     */
+    public void setUserName(String userName) {
+        this.userName = userName;
     }
     
 }

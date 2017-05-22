@@ -138,16 +138,28 @@ public class GroupController {
     /**
      * FIXME 方法注释信息(此标记由Eclipse自动生成,请填写注释信息删除此标记)
      * 
+     * @param userName x
+     * @param groupNickName x
      * @param userMapper x
      * @param groupName x
      * @param exUserId x
      * @param names x
      */
     @GetMapping("updateExUserId")
-    public void updateExUserId(UserMapper userMapper) {
-        if (StringUtils.isBlank(userMapper.getExUserId())) {
-            userMapperService.delete(userMapper.getNickName(), userMapper.getGroupNickName());
+    public void updateExUserId(String userName, String groupNickName, String exUserId) {
+        WxUser user = contactService.queryUserByUserName(userName);
+        if (user == null) {
+            return;
+        }
+        
+        if (StringUtils.isBlank(exUserId)) {
+            userMapperService.delete(user.getNickName(), groupNickName);
         } else {
+            UserMapper userMapper = new UserMapper();
+            userMapper.setExUserId(exUserId);
+            userMapper.setGroupNickName(groupNickName);
+            userMapper.setUserName(userName);
+            userMapper.setNickName(user.getNickName());
             userMapperService.save(userMapper);
         }
     }

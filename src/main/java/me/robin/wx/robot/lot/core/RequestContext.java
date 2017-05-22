@@ -5,6 +5,8 @@
 package me.robin.wx.robot.lot.core;
 
 import me.robin.wx.robot.frame.model.WxMsg;
+import me.robin.wx.robot.frame.model.WxUser;
+import me.robin.wx.robot.lot.entity.UserMapper;
 
 /**
  * FIXME 类注释信息(此标记自动生成,注释填写完成后请删除)
@@ -30,6 +32,12 @@ public class RequestContext {
     /** FIXME */
     private MessageRequest messageRequest;
     
+    /** FIXME */
+    private WxUser sender;
+    
+    /** FIXME */
+    private UserMapper userMapper;
+    
     /**
      * FIXME 方法注释信息(此标记由Eclipse自动生成,请填写注释信息删除此标记)
      *
@@ -47,17 +55,9 @@ public class RequestContext {
     }
     
     /**
-<<<<<<< HEAD
-     * @return the message
-     */
-    public String getFromUserName() {
-        return message.getFromUserName();
-    }
-    
-    /**
-=======
->>>>>>> branch 'master' of https://github.com/mytaia/wx-robot.git
-     * @param message the message to set
+     * FIXME 方法注释信息(此标记由Eclipse自动生成,请填写注释信息删除此标记)
+     *
+     * @param message x
      */
     public void setMessage(WxMsg message) {
         this.message = message;
@@ -75,6 +75,34 @@ public class RequestContext {
      */
     public void setMessageRequest(MessageRequest messageRequest) {
         this.messageRequest = messageRequest;
+    }
+    
+    /**
+     * @return the sender
+     */
+    public WxUser getSender() {
+        return sender;
+    }
+    
+    /**
+     * @param sender the sender to set
+     */
+    public void setSender(WxUser sender) {
+        this.sender = sender;
+    }
+    
+    /**
+     * @return the userMapper
+     */
+    public UserMapper getUserMapper() {
+        return userMapper;
+    }
+    
+    /**
+     * @param userMapper the userMapper to set
+     */
+    public void setUserMapper(UserMapper userMapper) {
+        this.userMapper = userMapper;
     }
     
 }

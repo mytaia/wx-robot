@@ -18,7 +18,7 @@ public abstract class AbstractMessageHandler implements MsgHandler {
     
     /** FIXME */
     @Autowired
-    protected WxMessageSender sender;
+    protected WxMessageSender messageSender;
     
     /**
      * FIXME 方法注释信息(此标记由Eclipse自动生成,请填写注释信息删除此标记)
@@ -27,7 +27,7 @@ public abstract class AbstractMessageHandler implements MsgHandler {
      * @param content x
      */
     protected void sendMessage(String user, String content) {
-        sender.sendTextMessage(user, content);
+        messageSender.sendTextMessage(user, content);
     }
     
     /**
@@ -37,7 +37,7 @@ public abstract class AbstractMessageHandler implements MsgHandler {
      * @param content x
      */
     protected void sendAdminMessage(String user, String content) {
-        sender.sendTextMessage(user, WxUtil.builddminMessage(content));
+        messageSender.sendTextMessage(user, WxUtil.builddminMessage(content));
     }
     
     /**

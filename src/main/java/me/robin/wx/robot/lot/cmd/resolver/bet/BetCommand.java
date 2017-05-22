@@ -21,8 +21,6 @@ import com.google.common.collect.Maps;
 
 import me.robin.wx.robot.frame.api.WxMessageSender;
 import me.robin.wx.robot.frame.model.WxGroupMsg;
-import me.robin.wx.robot.frame.model.WxUser;
-import me.robin.wx.robot.frame.service.ContactService;
 import me.robin.wx.robot.lot.cmd.Command;
 import me.robin.wx.robot.lot.cmd.WangPanCommandSupport;
 import me.robin.wx.robot.lot.core.BetRequest;
@@ -56,10 +54,6 @@ public class BetCommand extends WangPanCommandSupport implements Command {
     private WxMessageSender messageSender;
     
     /** FIXME */
-    @Autowired
-    private ContactService contactService;
-    
-    /** FIXME */
     @Value("${wanpan.bet.url}")
     private String betUrl;
     
@@ -72,21 +66,18 @@ public class BetCommand extends WangPanCommandSupport implements Command {
         String dataList = toJson(bets);
         WxGroupMsg msg = (WxGroupMsg) context.getMessage();
         String group = msg.getGroup();
-        String sender = msg.getSender();
-        WxUser user = contactService.queryUser(sender);
-        String userName = null;
-        if (user != null) {
-            userName = user.getRemarkName();
-        }
         
-        if (userName == null) {
-            logger.warn("用户{}没有设置对应的账号，投注[{}]被忽略", user.getNickName(), betRequest.getInput());
+        String nickName = context.getSender().getNickName();
+        String exUserId = context.getUserMapper().getExUserId();
+        
+        if (exUserId == null) {
+            logger.warn("用户{}没有设置对应的账号，投注[{}]被忽略", nickName, betRequest.getInput());
             return;
         }
         
         Map<String, Object> map = ImmutableMap.of( //
             "dataList", dataList, //
-            "operId", userName //
+            "operId", exUserId //
         );
         
         try {
@@ -94,10 +85,10 @@ public class BetCommand extends WangPanCommandSupport implements Command {
             String strMsg = null;
             if (res.code == 1) {
                 logger.info("投注成功");
-                strMsg = String.format("@%s您的%s投注成功,账户余额为%s", userName, betRequest.getPlayed().getName(), res.yuer);
+                strMsg = String.format("@%s您的%s投注成功,账户余额为%s", exUserId, betRequest.getPlayed().getName(), res.yuer);
             } else {
                 logger.error("向网盘提交投注时失败 :{}", res.msg);
-                strMsg = String.format("@%s您的%s投注失败,原因是 ： %s", userName, betRequest.getPlayed().getName(), res.msg);
+                strMsg = String.format("@%s您的%s投注失败,原因是 ： %s", exUserId, betRequest.getPlayed().getName(), res.msg);
             }
             messageSender.sendTextMessage(group, strMsg);
         } catch (IOException e) {

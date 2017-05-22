@@ -41,6 +41,16 @@ public interface UserMapperDao extends JpaRepository<UserMapper, String>, JpaSpe
     /**
      * FIXME 方法注释信息(此标记由Eclipse自动生成,请填写注释信息删除此标记)
      *
+     * @param userName x
+     * @param groupNickName x
+     * @return x
+     */
+    @Query("from UserMapper where userName=?1 and groupNickName=?2")
+    UserMapper findByUserName(String userName, String groupNickName);
+    
+    /**
+     * FIXME 方法注释信息(此标记由Eclipse自动生成,请填写注释信息删除此标记)
+     *
      * @param exUserId x
      * @return x
      */

@@ -9,11 +9,14 @@ import me.robin.wx.robot.frame.WxConst;
 import me.robin.wx.robot.frame.model.WxGroup;
 import me.robin.wx.robot.frame.model.WxGroupMsg;
 import me.robin.wx.robot.frame.model.WxMsg;
+import me.robin.wx.robot.frame.model.WxUser;
 import me.robin.wx.robot.frame.service.ContactService;
 import me.robin.wx.robot.lot.cmd.Command;
 import me.robin.wx.robot.lot.cmd.Commander;
 import me.robin.wx.robot.lot.core.RequestContext;
+import me.robin.wx.robot.lot.entity.UserMapper;
 import me.robin.wx.robot.lot.service.GroupService;
+import me.robin.wx.robot.lot.service.UserMapperService;
 
 /** 
  */
@@ -32,6 +35,10 @@ public class GroupMessageHandler extends AbstractMessageHandler {
     @Autowired
     private ContactService contactService;
     
+    /** FIXME */
+    @Autowired
+    private UserMapperService userMapperService;
+    
     @Override
     public void handle(WxMsg msg) {
         WxGroupMsg message = (WxGroupMsg) msg;
@@ -49,13 +56,23 @@ public class GroupMessageHandler extends AbstractMessageHandler {
         }
         
         // 这里如果找不到对应的用户账户，应直接返回，待添加
-        
         if ("?".equals(content) || "？".equals(content)) {
             sendMessage(groupName, "这里是指令的说明:1/2/3表示xxx");
             return;
         }
         
+        // 查找用户对应的网盘用户
+        String sender = message.getSender();
+        WxUser user = contactService.queryUserByUserName(sender);
+        UserMapper userMapper = userMapperService.findByNickName(sender, groupName);
+        if (userMapper == null) {
+            sendMessage(groupName, "@" + user.getNickName() + "没有对应用用户信息，请与管理员联系");
+            return;
+        }
+        
         RequestContext contex = createContext(message);
+        contex.setSender(user);
+        contex.setUserMapper(userMapper);
         
         // 识别投注请求sbs
         Command cmd = commander.resolveCommand(contex);
