@@ -43,6 +43,7 @@ import me.robin.wx.robot.frame.model.response.GetContactResponse;
 import me.robin.wx.robot.frame.service.ContactService;
 import me.robin.wx.robot.frame.util.ResponseReadUtils;
 import me.robin.wx.robot.frame.util.WxUtil;
+import me.robin.wx.robot.lot.service.UserMapperService;
 import okhttp3.Call;
 import okhttp3.Callback;
 import okhttp3.Cookie;
@@ -82,6 +83,10 @@ public abstract class BaseServer implements Runnable, WxApi {
     /** FIXME */
     @Autowired
     protected ContactService contactService;
+    
+    /** FIXME */
+    @Autowired
+    protected UserMapperService userMapperService;
     
     private volatile boolean login = false;
     
@@ -204,6 +209,10 @@ public abstract class BaseServer implements Runnable, WxApi {
             @Override
             void process(Call call, Response response, GetBatchContactResponse bean) {
                 logger.debug("从{}个群组中同步到{}个用户信息", bean.Count, bean.ContactList == null ? 0 : bean.ContactList.size());
+                
+                // 更新用户映射
+                userMapperService.initUserMapper(bean.ContactList);
+                
                 if (!CollectionUtils.isEmpty(bean.ContactList)) {
                     contactService.updateGroup(bean.ContactList);
                 }

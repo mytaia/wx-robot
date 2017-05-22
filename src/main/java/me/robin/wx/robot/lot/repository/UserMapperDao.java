@@ -77,4 +77,15 @@ public interface UserMapperDao extends JpaRepository<UserMapper, String>, JpaSpe
     @Query("from UserMapper where groupNickName=?1 ")
     List<UserMapper> findByGroupNickName(String groupNickName);
     
+    /**
+     * FIXME 方法注释信息(此标记由Eclipse自动生成,请填写注释信息删除此标记)
+     *
+     * @param nickName x
+     * @param groupNickName x
+     * @return x
+     */
+    @Modifying
+    @Query("update UserMapper set userName=null")
+    int clearUserName();
+    
 }
