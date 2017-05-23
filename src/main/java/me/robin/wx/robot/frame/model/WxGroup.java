@@ -3,6 +3,9 @@ package me.robin.wx.robot.frame.model;
 
 import java.util.List;
 
+import org.apache.commons.lang3.StringUtils;
+import org.springframework.util.CollectionUtils;
+
 import com.alibaba.fastjson.annotation.JSONField;
 
 /**
@@ -70,6 +73,24 @@ public class WxGroup extends WxUser {
      */
     public void setEncryChatRoomId(String encryChatRoomId) {
         this.encryChatRoomId = encryChatRoomId;
+    }
+    
+    /**
+     * 从群里查找指定的用户
+     * 
+     * @param userName x
+     * @return x
+     */
+    public WxUser findMember(String userName) {
+        if (CollectionUtils.isEmpty(memberList)) {
+            return null;
+        }
+        for (WxUser user : memberList) {
+            if (StringUtils.equals(userName, user.getUserName())) {
+                return user;
+            }
+        }
+        return null;
     }
     
 }

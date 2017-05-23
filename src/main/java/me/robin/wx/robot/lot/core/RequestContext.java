@@ -91,18 +91,4 @@ public class RequestContext {
         this.sender = sender;
     }
     
-    /**
-     * @return the userMapper
-     */
-    public UserMapper getUserMapper() {
-        return userMapper;
-    }
-    
-    /**
-     * @param userMapper the userMapper to set
-     */
-    public void setUserMapper(UserMapper userMapper) {
-        this.userMapper = userMapper;
-    }
-    
 }

@@ -9,7 +9,6 @@ import java.util.List;
 
 import javax.servlet.http.HttpServletResponse;
 
-import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
@@ -77,7 +76,6 @@ public class GroupController {
     @GetMapping("")
     public String index(Model model) {
         List<WxGroup> groups = contactService.getAllWxGroup();
-        groups.forEach(g -> buildGroup(g));
         model.addAttribute("groups", groups);
         return "group/list";
     }
@@ -101,7 +99,7 @@ public class GroupController {
         } else {
             group = contactService.getWxGroup(userName);
         }
-        return group == null ? null : buildGroup(group);
+        return group;
     }
     
     /**
@@ -139,53 +137,35 @@ public class GroupController {
      * FIXME 方法注释信息(此标记由Eclipse自动生成,请填写注释信息删除此标记)
      * 
      * @param userName x
-     * @param groupNickName x
+     * @param groupUserName x
      * @param userMapper x
      * @param groupName x
      * @param exUserId x
      * @param names x
      */
     @GetMapping("updateExUserId")
-    public void updateExUserId(String userName, String groupNickName, String exUserId) {
-        WxUser user = contactService.queryUserByUserName(userName);
+    public void updateExUserId(String userName, String groupUserName, String exUserId) {
+        WxGroup group = contactService.getWxGroup(groupUserName);
+        if (group == null) {
+            return;
+        }
+        WxUser user = group.findMember(userName);
         if (user == null) {
             return;
         }
         
         if (StringUtils.isBlank(exUserId)) {
-            userMapperService.delete(user.getNickName(), groupNickName);
+            user.setExUserId(null);
+            userMapperService.delete(group.getNickName(), groupUserName);
         } else {
+            user.setExUserId(exUserId);
             UserMapper userMapper = new UserMapper();
             userMapper.setExUserId(exUserId);
-            userMapper.setGroupNickName(groupNickName);
+            userMapper.setGroupNickName(groupUserName);
             userMapper.setUserName(userName);
-            userMapper.setNickName(user.getNickName());
+            userMapper.setNickName(group.getNickName());
             userMapperService.save(userMapper);
         }
     }
     
-    /**
-     * FIXME 方法注释信息(此标记由Eclipse自动生成,请填写注释信息删除此标记)
-     * 
-     * @param group x
-     * @param userName x
-     * @param names x
-     * @return x
-     */
-    public WxGroup buildGroup(WxGroup group) {
-        List<UserMapper> list = userMapperService.findByGroupNickName(group.getNickName());
-        if (CollectionUtils.isEmpty(list)) {
-            return group;
-        }
-        
-        List<WxUser> users = group.getMemberList();
-        list.forEach((um) -> {
-            users.forEach((user) -> {
-                if (StringUtils.equals(um.getNickName(), user.getNickName())) {
-                    user.setExUserId(um.getExUserId());
-                }
-            });
-        });
-        return group;
-    }
 }

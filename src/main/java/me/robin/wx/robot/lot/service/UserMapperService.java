@@ -164,6 +164,7 @@ public class UserMapperService {
                 WxUser u = us.stream().findFirst().get();
                 um.setUserName(u.getUserName());
                 userMapperDao.save(um);
+                u.setExUserId(um.getExUserId());
                 logger.info("群{}中的用户{}成功匹配到外部用户ID{}", group.getNickName(), u.getNickName(), um.getExUserId());
             });
             

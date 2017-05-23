@@ -17,6 +17,7 @@ import com.google.common.collect.ImmutableMap;
 
 import me.robin.wx.robot.frame.api.WxMessageSender;
 import me.robin.wx.robot.frame.model.WxGroupMsg;
+import me.robin.wx.robot.frame.model.WxUser;
 import me.robin.wx.robot.lot.cmd.Command;
 import me.robin.wx.robot.lot.cmd.WangPanCommandSupport;
 import me.robin.wx.robot.lot.core.RequestContext;
@@ -60,8 +61,9 @@ public class ServiceCommand extends WangPanCommandSupport implements Command {
         WxGroupMsg msg = (WxGroupMsg) context.getMessage();
         String group = msg.getGroup();
         
-        String nickName = context.getSender().getNickName();
-        String exUserId = context.getUserMapper().getExUserId();
+        WxUser sender = context.getSender();
+        String nickName = sender.getNickName();
+        String exUserId = sender.getExUserId();
         
         if (exUserId == null) {
             logger.warn("用户{}没有设置对应的账号，服务指令[{}]被忽略", nickName, context.getInput());

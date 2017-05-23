@@ -14,9 +14,7 @@ import me.robin.wx.robot.frame.service.ContactService;
 import me.robin.wx.robot.lot.cmd.Command;
 import me.robin.wx.robot.lot.cmd.Commander;
 import me.robin.wx.robot.lot.core.RequestContext;
-import me.robin.wx.robot.lot.entity.UserMapper;
 import me.robin.wx.robot.lot.service.GroupService;
-import me.robin.wx.robot.lot.service.UserMapperService;
 
 /** 
  */
@@ -34,10 +32,6 @@ public class GroupMessageHandler extends AbstractMessageHandler {
     /** FIXME */
     @Autowired
     private ContactService contactService;
-    
-    /** FIXME */
-    @Autowired
-    private UserMapperService userMapperService;
     
     @Override
     public void handle(WxMsg msg) {
@@ -63,16 +57,14 @@ public class GroupMessageHandler extends AbstractMessageHandler {
         
         // 查找用户对应的网盘用户
         String sender = message.getSender();
-        WxUser user = contactService.queryUserByUserName(sender);
-        UserMapper userMapper = userMapperService.findByNickName(sender, groupName);
-        if (userMapper == null) {
+        WxUser user = group.findMember(sender);
+        if (user == null || StringUtils.isEmpty(user.getExUserId())) {
             sendMessage(groupName, "@" + user.getNickName() + "没有对应用用户信息，请与管理员联系");
             return;
         }
         
         RequestContext contex = createContext(message);
         contex.setSender(user);
-        contex.setUserMapper(userMapper);
         
         // 识别投注请求sbs
         Command cmd = commander.resolveCommand(contex);
