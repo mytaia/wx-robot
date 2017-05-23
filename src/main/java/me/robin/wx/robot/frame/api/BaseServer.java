@@ -1,6 +1,9 @@
 
 package me.robin.wx.robot.frame.api;
 
+import java.io.ByteArrayInputStream;
+import java.io.File;
+import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.HashMap;
@@ -10,6 +13,7 @@ import java.util.Optional;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 
+import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.RandomUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -536,6 +540,12 @@ public abstract class BaseServer implements Runnable, WxApi {
      * @throws IOException x
      */
     public InputStream getHeadImg(String userName, WxGroup group) throws IOException {
+        String path = WxUtil.getUserHeadImgPath(userName);
+        File headImgFile = new File(path);
+        if (headImgFile.exists() && headImgFile.length() > 0) {
+            return new FileInputStream(headImgFile);
+        }
+        
         Request.Builder request = initRequestBuilder("/cgi-bin/mmwebwx-bin/webwxgeticon", //
             "username", userName, //
             "chatroomid", group == null ? null : group.getEncryChatRoomId(), //
@@ -543,8 +553,12 @@ public abstract class BaseServer implements Runnable, WxApi {
             "seq", String.valueOf(RandomUtils.nextInt(0, 100000)) //
         );
         
-        Response response = webClient.execute(request.build());
-        return response.body().byteStream();
+        try (Response response = webClient.execute(request.build())) {
+            InputStream is = response.body().byteStream();
+            byte[] bs = IOUtils.toByteArray(is);
+            FileUtils.writeByteArrayToFile(headImgFile, bs);
+            return new ByteArrayInputStream(bs);
+        }
     }
     
     public abstract class BaseCallback implements Callback {

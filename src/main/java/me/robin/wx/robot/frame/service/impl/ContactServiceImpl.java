@@ -8,7 +8,6 @@ import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
-import org.springframework.util.CollectionUtils;
 
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
@@ -48,7 +47,6 @@ public class ContactServiceImpl implements ContactService {
             if (StringUtils.startsWith(userName, "@@")) {
                 WxGroup wxGroup = item.toJavaObject(WxGroup.class);
                 addWxGroup(wxGroup);
-                addWxUser(wxGroup);
             } else if (StringUtils.startsWith(userName, "@")) {
                 WxUser wxUser = item.toJavaObject(WxUser.class);
                 addWxUser(wxUser);
@@ -64,7 +62,6 @@ public class ContactServiceImpl implements ContactService {
             String userName = group.getUserName();
             if (WxUtil.isGroup(userName)) {
                 addWxGroup(group);
-                addWxUser(group);
             } else if (StringUtils.startsWith(userName, "@")) {
                 addWxUser(group);
             } else if (!WxConst.FILTER_USERS.contains(userName)) {
@@ -80,21 +77,7 @@ public class ContactServiceImpl implements ContactService {
      */
     private void addWxGroup(WxGroup wxGroup) {
         groupNameMap.put(wxGroup.getUserName(), wxGroup);
-        addWxUser(wxGroup.getMemberList());
-    }
-    
-    /**
-     * FIXME 方法注释信息(此标记由Eclipse自动生成,请填写注释信息删除此标记)
-     * 
-     * @param users x
-     */
-    private void addWxUser(List<WxUser> users) {
-        if (CollectionUtils.isEmpty(users)) {
-            return;
-        }
-        for (WxUser user : users) {
-            addWxUser(user);
-        }
+        addWxUser(wxGroup);
     }
     
     /**

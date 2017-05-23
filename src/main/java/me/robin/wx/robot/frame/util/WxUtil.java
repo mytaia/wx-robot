@@ -155,7 +155,6 @@ public class WxUtil {
      */
     public static String getUserHeadImgPath(String userName) {
         String root = getUserHeadImgDir();
-        
         return root + userName + ".png";
     }
 }
