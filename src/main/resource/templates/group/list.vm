@@ -26,7 +26,7 @@
 			#foreach($user in $group.memberList)
 			<section class="user">
 				<div class="headimg">
-					<img src="#CTX/group/headImg?userName=${user.userName}&groupName=${group.userName}"/>
+					<img src="#CTX/group/headImg?userName=${user.userName}&groupUserName=${group.userName}"/>
 					<div  class="nickName" title="$!{user.nickName}">$!{user.nickName}</div>
 				</div>
 				<div class="info" data-user='{"userName":"$!{user.userName}","exUserId":"$!{user.exUserId}"}'>
@@ -59,13 +59,15 @@
 		
 		
 		$("#group_list").on("click",".glyphicon-edit",function(e){ 
-			var user = $(this).parent().data("user");
+			var parent = $(this).parent();
+			var user = parent.data("user");
 			layer.prompt({title: '修改对应网盘的账号', formType: 3,value:user.exUserId }, function(txt, index){
-				layer.close(index);
-				var um ={userName : user.userName,exUserId:txt,groupUserName : currentGroupUserName}
-				$.get("#CTX/group/updateExUserId", um ,function(data){
-				      layer.alert("xxxx");
-				},"json");
+				layer.close(index); 
+				var um ={userName : user.userName,exUserId:txt,groupUserName : currentGroupUserName}; 
+				$.post("#CTX/group/updateExUserId", um ,function(data){
+				      user.exUserId=txt; 
+				      parent.find(".exUser").attr("title",txt).text(txt); 
+				} );
 			});
 		});
 		
@@ -83,10 +85,10 @@
 	<%_.each(obj.memberList,function(user,i){%> 
 			<section class="user">
 				<div class="headimg">
-					<img src="#CTX/group/headImg?userName=<%=user.userName%>&groupName=<%=obj.userName%>"/>
+					<img src="#CTX/group/headImg?userName=<%=user.userName%>&groupUserName=<%=obj.userName%>"/>
 					<div  class="nickName" title="<%=user.nickName%>"><%=user.nickName%></div>
 				</div>
-				<div class="info" data-user="{userName:'<%=user.userName%>',exUserId:'<%=user.exUserId%>'}">
+				<div class="info" data-user='{"userName":"<%=user.userName%>","exUserId":"<%=user.exUserId%>"}'>
 					<div class="exUser" title="<%=user.exUserId%>"><%=user.exUserId%></div>
 					<span class="glyphicon glyphicon-edit" aria-hidden="true"></span>
 				</div>

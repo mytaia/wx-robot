@@ -2,9 +2,8 @@
 
 package me.robin.wx.robot.web;
 
-import java.io.File;
-import java.io.FileInputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.util.List;
 
 import javax.servlet.http.HttpServletResponse;
@@ -14,10 +13,10 @@ import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
 
@@ -25,7 +24,6 @@ import me.robin.wx.robot.frame.api.Server;
 import me.robin.wx.robot.frame.model.WxGroup;
 import me.robin.wx.robot.frame.model.WxUser;
 import me.robin.wx.robot.frame.service.ContactService;
-import me.robin.wx.robot.frame.util.WxUtil;
 import me.robin.wx.robot.lot.entity.UserMapper;
 import me.robin.wx.robot.lot.service.UserMapperService;
 
@@ -62,10 +60,6 @@ public class GroupController {
     /** FIXME */
     @Autowired
     private Server server;
-    
-    /** FIXME */
-    @Value("${user.headImg.path:}")
-    private String userHeadImgPath;
     
     /**
      * FIXME 方法注释信息(此标记由Eclipse自动生成,请填写注释信息删除此标记)
@@ -106,28 +100,18 @@ public class GroupController {
      * FIXME 方法注释信息(此标记由Eclipse自动生成,请填写注释信息删除此标记)
      * 
      * @param userName x
-     * @param groupName x
+     * @param groupUserName x
      * @param response x
      */
     @GetMapping("headImg")
-    public void headImg(String userName, String groupName, HttpServletResponse response) {
-        String path = WxUtil.getUserHeadImgPath(userHeadImgPath, userName);
-        File file = new File(path);
+    public void headImg(String userName, String groupUserName, HttpServletResponse response) {
         
-        try {
-            if (!file.exists()) {
-                WxGroup group = contactService.getWxGroup(groupName);
-                if (group == null) {
-                    return;
-                }
-                file = server.getHeadImg(userName, group);
-                if (file == null) {
-                    return;
-                }
-            }
-            try (FileInputStream fis = new FileInputStream(file)) {
-                IOUtils.copy(fis, response.getOutputStream());
-            }
+        WxGroup group = contactService.getWxGroup(groupUserName);
+        if (group == null) {
+            return;
+        }
+        try (InputStream fis = server.getHeadImg(userName, group)) {
+            IOUtils.copy(fis, response.getOutputStream());
         } catch (IOException e) {
             logger.error("获取用户头像时异常", e);
         }
@@ -142,16 +126,18 @@ public class GroupController {
      * @param groupName x
      * @param exUserId x
      * @param names x
+     * @return x
      */
-    @GetMapping("updateExUserId")
-    public void updateExUserId(String userName, String groupUserName, String exUserId) {
+    @ResponseBody
+    @PostMapping("updateExUserId")
+    public Object updateExUserId(String userName, String groupUserName, String exUserId) {
         WxGroup group = contactService.getWxGroup(groupUserName);
         if (group == null) {
-            return;
+            return null;
         }
         WxUser user = group.findMember(userName);
         if (user == null) {
-            return;
+            return null;
         }
         
         if (StringUtils.isBlank(exUserId)) {
@@ -161,11 +147,12 @@ public class GroupController {
             user.setExUserId(exUserId);
             UserMapper userMapper = new UserMapper();
             userMapper.setExUserId(exUserId);
-            userMapper.setGroupNickName(groupUserName);
+            userMapper.setGroupNickName(group.getNickName());
             userMapper.setUserName(userName);
-            userMapper.setNickName(group.getNickName());
+            userMapper.setNickName(user.getNickName());
             userMapperService.save(userMapper);
         }
+        return "";
     }
     
 }

@@ -68,6 +68,9 @@ public class UserMapperService {
             delete(userMapper.getNickName(), userMapper.getGroupNickName());
         } else {
             UserMapper old = findByNickName(userMapper.getNickName(), userMapper.getGroupNickName());
+            if (old == null) {
+                old = userMapper;
+            }
             old.setExUserId(userMapper.getExUserId());
             userMapperDao.save(old);
         }

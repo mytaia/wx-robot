@@ -1,9 +1,8 @@
 
 package me.robin.wx.robot.frame.api;
 
-import java.io.File;
-import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -17,7 +16,6 @@ import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.util.CollectionUtils;
 
@@ -65,10 +63,6 @@ public abstract class BaseServer implements Runnable, WxApi {
     private String appId;
     
     final LoginUser user = new LoginUser();
-    
-    /** 用户头像存放的目录 */
-    @Value("${user.headImg.path:}")
-    private String userHeadImgPath;
     
     /** FIXME */
     @Autowired
@@ -537,10 +531,11 @@ public abstract class BaseServer implements Runnable, WxApi {
      * 
      * @param userName x
      * @param group x
+     * @param streamConsumer x
      * @return x
      * @throws IOException x
      */
-    public File getHeadImg(String userName, WxGroup group) throws IOException {
+    public InputStream getHeadImg(String userName, WxGroup group) throws IOException {
         Request.Builder request = initRequestBuilder("/cgi-bin/mmwebwx-bin/webwxgeticon", //
             "username", userName, //
             "chatroomid", group == null ? null : group.getEncryChatRoomId(), //
@@ -548,14 +543,8 @@ public abstract class BaseServer implements Runnable, WxApi {
             "seq", String.valueOf(RandomUtils.nextInt(0, 100000)) //
         );
         
-        try (Response response = webClient.execute(request.build())) {
-            // 存入到头像文件夹#CTX/headImg?userName=<%user.userName%>
-            File file = new File(WxUtil.getUserHeadImgPath(userHeadImgPath, userName));
-            try (FileOutputStream fos = new FileOutputStream(file)) {
-                IOUtils.copy(response.body().byteStream(), fos);
-                return file;
-            }
-        }
+        Response response = webClient.execute(request.build());
+        return response.body().byteStream();
     }
     
     public abstract class BaseCallback implements Callback {

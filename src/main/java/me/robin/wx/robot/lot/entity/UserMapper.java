@@ -6,9 +6,12 @@ package me.robin.wx.robot.lot.entity;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
 import javax.persistence.Index;
 import javax.persistence.Table;
+
+import org.hibernate.annotations.GenericGenerator;
 
 /**
  * 微信用户与网盘用户的对应关系
@@ -38,6 +41,8 @@ public class UserMapper extends BaseEntity {
     /** FIXME */
     @Id
     @Column(length = 40)
+    @GeneratedValue(generator = "UIDGenerator")
+    @GenericGenerator(name = "UIDGenerator", strategy = "me.robin.wx.robot.framwork.AssignedUIDGenerator")
     private String userInfoId;
     
     /** 用户在群中的昵称 */

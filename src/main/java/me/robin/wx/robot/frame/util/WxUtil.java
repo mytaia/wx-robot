@@ -22,6 +22,9 @@ import okhttp3.RequestBody;
  */
 public class WxUtil {
     
+    /** FIXME */
+    private static final String HeadImgPath = "robot/headImg/";
+    
     /**
      * FIXME 方法注释信息(此标记由Eclipse自动生成,请填写注释信息删除此标记)
      *
@@ -134,14 +137,24 @@ public class WxUtil {
      * @param userName x
      * @return x
      */
-    public static String getUserHeadImgPath(String rootPath, String userName) {
-        String root = rootPath;
-        if (StringUtils.isEmpty(root)) {
-            root = FileUtils.getTempDirectoryPath();
-        }
+    public static String getUserHeadImgDir() {
+        String root = FileUtils.getTempDirectoryPath();
         if (!root.endsWith("/")) {
             root = root + "/";
         }
+        
+        return root + HeadImgPath;
+    }
+    
+    /**
+     * FIXME 方法注释信息(此标记由Eclipse自动生成,请填写注释信息删除此标记)
+     * 
+     * @param rootPath x
+     * @param userName x
+     * @return x
+     */
+    public static String getUserHeadImgPath(String userName) {
+        String root = getUserHeadImgDir();
         
         return root + userName + ".png";
     }
